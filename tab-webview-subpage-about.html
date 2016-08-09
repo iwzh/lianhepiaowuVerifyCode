@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Hello MUI</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="css/mui.min.css">
+		<style>
+			html,body {
+				background-color: #efeff4;
+			}
+			.title{
+				margin: 20px 15px 10px;
+				color: #6d6d72;
+				font-size: 15px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="mui-content">
+			<div class="mui-input-row">
+					<h5>票号</h5>
+					<input id="lhcode" type="number" class="mui-input-clear" placeholder="请输入联合票务12位电子票" value="">
+				</div>
+				<h5>数量</h5>
+				<div class="mui-numbox" data-numbox-min='1'>
+					<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
+					<input id="number" class="mui-input-numbox" type="number" value="1" />
+					<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+				</div>
+				<div class="mui-button-row">
+
+				</div>
+				<div class="mui-button-row" id="CodeExecude">
+					<button type="button" class="mui-btn mui-btn-blue" id="verifyCode">验票</button>&nbsp; &nbsp; &nbsp; &nbsp;
+					<button type="button" class="mui-btn mui-btn-red" id="queryCode">查询</a>
+				</div>
+				<div id="tipsinfo"></div>
+		</div>
+	</body>
+	<script src="js/mui.min.js"></script>
+	<script src="js/user.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		//主列表点击事件
+	var lhcode = document.getElementById('lhcode'),
+		number = document.getElementById('number'),
+		tipsinfo = document.getElementById("tipsinfo"),
+		num =code = '',
+		settings='',
+		exeparam = 0;
+		
+		mui.init({
+			swipeBack:true //启用右滑关闭功能
+		});
+		mui.plusReady(function(){
+			settings = UserInfo.getSettings();
+				if(settings.device.uuid.lenth < 1) {
+					settings.device = {
+						"uuid": plus.device.uuid,
+						"model": plus.device.model
+					};
+					UserInfo.setSettings(settings); //用户设备信息	
+				}
+		});
+		
+			mui('#CodeExecude').on('tap', '.mui-btn', function() {
+			if(exeparam) {
+				mui.toast('不可重复提交');
+				return false;
+			} else {
+				exeparam = 1;
+			}
+			var fn = this.getAttribute("id");
+			code = lhcode.value;
+			num = number.value;
+			if((code.length < 12) || (code.length > 12)) {
+				onError('请输入联合票务12位消费编码');
+				return false;
+			}
+			if(!settings.device) {
+				onError('请允许软件读取设备标识的权限');
+				return false;
+			}
+			mui.web_query(fn, {
+				code: code,
+				num: num,
+				device: device
+			}, onSuccess, onError, 3);
+		});
+		var onSuccess = function(data) {
+			exeparam = 0;
+			mui.alert(data.msg, '成功',
+				function() {
+					var datainfo = data.data;
+					tipsinfo.innerText = data.msg;
+				});
+
+		}
+
+		var onError = function(errcode) {
+			exeparam = 0;
+			switch(errcode) {
+				case 'INCORRECT_PASSWORD':
+					mui.toast('密码不正确');
+					break;
+				case 'USER_NOT_EXISTS':
+					mui.toast('用户尚未注册');
+					break;
+				default:
+				mui.toast(errcode);
+			}
+
+		}
+
+	
+	</script>
+</html>
