@@ -1,83 +1,110 @@
 {
-	"index.html": {
-		"href": "index.html",
-		"resources": [
-			"js/mui.min.js",
-			"css/mui.min.css",
-			"js/app.js",
-			"tabbar.html",
-			"fonts/mui.ttf",
-			"js/update.js",
-			"js/user.js"
-		],
-		"refer": [
-			"tabbar.html",
-			"tab-webview-main.html",
-			"template.html",
-			"login.html"
-		],
-		"priority": 0
-	},
-	"tab-webview-main.html": {
-		"resources": [
-			"tab-webview-subpage-about.html",
-			"fonts/mui.ttf"
-		],
-		"refer": [
-			"tab-webview-subpage-about.html",
-			"tab-webview-subpage-setting.html",
-			"tab-webview-subpage-chat.html",
-			"tab-webview-subpage-contact.html"
-		]
-	},
-	"tabbar.html": {
-		"resources": [
-			"fonts/mui.ttf",
-			"js/mui.min.js",
-			"css/mui.min.css",
-			"js/md5.min.js",
-			"js/app.js",
-			"js/user.js"
-		],
-		"refer": [
-			"login.html",
-			"template.html"
-		]
-	},
-	"login.html": {
-		"resources": [
-			"js/mui.enterfocus.js",
-			"js/user.js",
-			"js/mui.min.js",
-			"css/mui.min.css",
-			"js/md5.min.js",
-			"fonts/mui.ttf"
-		],
-		"refer": [
-			"index.html",
-			"tabbar.html",
-			"main.html"
-		]
-	},
-	"main.html": {
-		"resources": [
-			"tab-webview-subpage-about.html",
-			"fonts/mui.ttf",
-			"js/user.js",
-			"js/mui.min.js",
-			"css/mui.min.css"
-		],
-		"refer": [
-			"tab-webview-subpage-about.html",
-			"tab-webview-subpage-setting.html",
-			"login.html"
-		]
-	},
-	"tab-webview-subpage-setting.html": {
-		"resources": [
-			"js/mui.min.js",
-			"fonts/mui.ttf",
-			"css/mui.min.css"
-		]
-	}
+  "index.html": {
+    "href": "index.html",
+    "resources": [
+      "js/mui.min.js",
+      "css/mui.min.css",
+      "js/app.js",
+      "tabbar.html",
+      "fonts/mui.ttf",
+      "js/update.js",
+      "js/user.js"
+    ],
+    "refer": [
+      "tabbar.html",
+      "tab-webview-main.html",
+      "template.html",
+      "login.html"
+    ],
+    "priority": 0
+  },
+  "tab-webview-main.html": {
+    "resources": [
+      "tab-webview-subpage-about.html",
+      "fonts/mui.ttf"
+    ],
+    "refer": [
+      "tab-webview-subpage-about.html",
+      "tab-webview-subpage-setting.html",
+      "tab-webview-subpage-chat.html",
+      "tab-webview-subpage-contact.html"
+    ]
+  },
+  "tabbar.html": {
+    "resources": [
+      "fonts/mui.ttf",
+      "js/mui.min.js",
+      "css/mui.min.css",
+      "js/md5.min.js",
+      "js/app.js",
+      "js/user.js"
+    ],
+    "refer": [
+      "login.html",
+      "template.html"
+    ]
+  },
+  "login.html": {
+    "resources": [
+      "js/mui.enterfocus.js",
+      "js/user.js",
+      "js/mui.min.js",
+      "css/mui.min.css",
+      "js/md5.min.js",
+      "fonts/mui.ttf"
+    ],
+    "refer": [
+      "index.html",
+      "tabbar.html",
+      "main.html",
+      "unlock.html"
+    ]
+  },
+  "main.html": {
+    "resources": [
+      "tab-webview-subpage-about.html",
+      "fonts/mui.ttf",
+      "js/user.js",
+      "js/mui.min.js",
+      "css/mui.min.css"
+    ],
+    "refer": [
+      "tab-webview-subpage-about.html",
+      "tab-webview-subpage-setting.html",
+      "login.html"
+    ]
+  },
+  "tab-webview-subpage-setting.html": {
+    "resources": [
+      "js/mui.min.js",
+      "fonts/mui.ttf",
+      "css/mui.min.css",
+      "js/user.js",
+      "js/mui.view.js",
+      "js/mui.locker.js"
+    ],
+    "refer": [
+      "login.html"
+    ]
+  },
+  "tab-webview-subpage-about.html": {
+    "resources": [
+      "js/user.js",
+      "js/mui.min.js",
+      "css/mui.min.css"
+    ],
+    "refer": []
+  },
+  "unlock.html": {
+    "resources": [
+      "js/mui.locker.js",
+      "css/mui.min.css",
+      "js/mui.min.js",
+      "js/user.js"
+    ],
+    "refer": [
+      "login.html",
+      "main.html"
+    ]
+  }
 }

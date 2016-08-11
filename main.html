@@ -33,7 +33,6 @@
 			</a>
 		</nav>
 		<script src="js/mui.min.js"></script>
-		<script src="js/user.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
 			 //mui初始化
 			mui.init();
@@ -44,17 +43,16 @@
 			};
 			
 			var aniShow = {};
-			
 			 //创建子页面，首个选项卡页面显示，其它均隐藏；
-			mui.plusReady(function() {
-				var self = plus.webview.currentWebview();
-				for (var i = 0; i < 2; i++) {
-					var temp = {};
-					var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
-					if (i > 0) {
-						sub.hide();
-					}else{
-						temp[subpages[i]] = "true";
+			mui.plusReady(function() {				
+					var self = plus.webview.currentWebview();
+					for(var i = 0; i < 2; i++) {
+						var temp = {};
+						var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
+						if(i > 0) {
+							sub.hide();
+						} else {
+							temp[subpages[i]] ="true";
 						mui.extend(aniShow,temp);
 					}
 					self.append(sub);
@@ -99,54 +97,7 @@
 					defaultTab.classList.add('mui-active');
 				}
 			});
-			 //自定义事件，模拟点击“首页选项卡”
-			document.addEventListener('exit', function(){
-				if(mui.os.ios) {
-					app.setState({});
-					UserInfo.clear();
-					mui.openWindow({
-						url: 'login.html',
-						id: 'login',
-						show: {
-							aniShow: 'pop-in'
-						},
-						waiting: {
-							autoShow: false
-						}
-					});
-					return;
-				}
-				var btnArray = [{
-					title: "注销当前账号"
-				}, {
-					title: "直接关闭应用"
-				}];
-				plus.nativeUI.actionSheet({
-					cancel: "取消",
-					buttons: btnArray
-				}, function(event) {
-					var index = event.index;
-					switch(index) {
-						case 1:
-							UserInfo.setState({});
-							UserInfo.clear();
-							mui.openWindow({
-								url: 'login.html',
-								id: 'login',
-								show: {
-									aniShow: 'pop-in'
-								},
-								waiting: {
-									autoShow: false
-								}
-							});
-							break;
-						case 2:
-							plus.runtime.quit();
-							break;
-					}
-				});
-			});
+			
 		</script>
 	</body>
 

@@ -49,41 +49,7 @@
 				text-align: center;
 			}
 			
-			.spliter {
-				color: #bbb;
-				padding: 0px 8px;
-			}
-			
-			.oauth-area {
-				position: absolute;
-				bottom: 20px;
-				left: 0px;
-				text-align: center;
-				width: 100%;
-				padding: 0px;
-				margin: 0px;
-			}
-			
-			.oauth-area .oauth-btn {
-				display: inline-block;
-				width: 50px;
-				height: 50px;
-				background-size: 30px 30px;
-				background-position: center center;
-				background-repeat: no-repeat;
-				margin: 0px 20px;
-				/*-webkit-filter: grayscale(100%); */
-				border: solid 1px #ddd;
-				border-radius: 25px;
-			}
-			
-			.oauth-area .oauth-btn:active {
-				border: solid 1px #aaa;
-			}
-			
-			.oauth-area .oauth-btn.disabled {
-				background-color: #ddd;
-			}
+		
 		</style>
 
 	</head>
@@ -96,11 +62,11 @@
 			<form id='login-form' class="mui-input-group">
 				<div class="mui-input-row">
 					<label>账号</label>
-					<input id='account' type="text" class="mui-input-clear mui-input" placeholder="请输入账号">
+					<input id='account' type="text" class="mui-input-clear mui-input" placeholder="请输入账号" value="">
 				</div>
 				<div class="mui-input-row">
 					<label>密码</label>
-					<input id='password' type="password" class="mui-input-clear mui-input" placeholder="请输入密码">
+					<input id='password' type="password" class="mui-input-clear mui-input" placeholder="请输入密码" value="">
 				</div>
 			</form>
 			<form class="mui-input-group">
@@ -115,49 +81,61 @@
 			</form>
 			<div class="mui-content-padded">
 				<button id='login' class="mui-btn mui-btn-block mui-btn-primary">登录</button>
-				<!--<div class="link-area"><a id='reg'>注册账号</a> <span class="spliter">|</span> <a id='forgetPassword'>忘记密码</a>-->
+				<div class="link-area"><!--<a id='reg'>注册账号</a> <span class="spliter">|</span> --><a id='forgetPassword'>忘记密码</a>
 			</div>
+			<div id="tipsinfo"></div>
 		</div>
 		</div>
 		<script src="js/mui.min.js"></script>
 		<script src="js/mui.enterfocus.js"></script>
 		<script src="js/md5.min.js" type="text/javascript" charset="utf-8"></script>
-		<!--<script src="js/app.js"></script>-->
 		<script src="js/user.js"></script>
 		<script>
 			(function($, doc) {
-			var subWebview=null,template=null;
+			var subWebview=null,template=null,settings='',state='';
+						var accountBox = doc.getElementById('account');
+						var passwordBox = doc.getElementById('password');
 					$.init({
 						statusBarBackground: '#f7f7f7'
 					});
 					$.plusReady(function() {
-						plus.screen.lockOrientation("portrait-primary");
-						var settings = UserInfo.getSettings();
-						if(settings.device.uuid.length<1){
-							settings.device={"uuid":plus.device.uuid,"model":plus.device.model,"imei":plus.device.imei};
-							UserInfo.setSettings(settings);
-						}
-						
+						plus.screen.lockOrientation("portrait-primary");		
+						settings = app.getSettings();
+						state = app.getState();				
 						var mainPage = $.preload({
 							"id": 'main',
 							"url": 'main.html'
 						});
 						var toMain = function() {
 							$.fire(mainPage, 'show', null);
-						setTimeout(function() {
-							$.openWindow({
-								id: 'main',
-								show: {
-									aniShow: 'pop-in'
-								},
-								waiting: {
-									autoShow: false
-								}
-							});
-						}, 0);			
+							setTimeout(function() {
+								$.openWindow({
+									id: 'main',
+									show: {
+										aniShow: 'pop-in'
+									},
+									waiting: {
+										autoShow: true
+									}
+								});
+							}, 10);			
 						};
+						if(!settings.device){
+							if(plus.device.uuid){
+								settings.device={"uuid":plus.device.uuid,"model":plus.device.model,"imei":plus.device.imei};
+								app.setSettings(settings);	
+							}else{
+								mui.alert("请允许应用获取手机信息的权限","无权限提示");
+							}
+						}
+						var has_login=app.has_login();
+						var username = app.username();
+						if(username){
+							accountBox.value=username;
+						}
 						//检查 "登录状态/锁屏状态" 开始
-						if(settings.autoLogin && UserInfo.token && settings.gestures) {
+						if(settings.autoLogin && state.token && username && settings.gestures) {
+							console.log(settings.gestures);
 							$.openWindow({
 								url: 'unlock.html',
 								id: 'unlock',
@@ -168,50 +146,111 @@
 									autoShow: false
 								}
 							});
-						} else if(settings.autoLogin && UserInfo.token) {
+							return ;
+						} else if(settings.autoLogin && has_login) {
+							console.log('has_login');
 							toMain();
+						}else if(settings.autoLogin && app.auto_login()) {
+							
+							mui.toast("正在为您自动登录。。。");
+							var username = app.username();
+							var token = state.token,tokenlianhe = app.password();
+							accountBox.value=username;
+							passwordBox.value=tokenlianhe;
+							var param = {
+								'username': username,
+								'device': settings.device
+							};
+							if(!token&&!tokenlianhe){
+								mui.toast("登录错误，请手动登录");
+							}else{
+								if(token){
+									param.token=token;
+								}
+								if(tokenlianhe){
+									param.tokenlianhe=tokenlianhe;
+								}
+								mui.web_query('autoLogin', param, onSuccess, onError);	
+							}							
 						} else {
-							UserInfo.clear() 
-							app.setState(null);
+							app.clear() 
 						}
 						//检查 "登录状态/锁屏状态" 结束
 						var loginButton = doc.getElementById('login');
-						var accountBox = doc.getElementById('account');
-						var passwordBox = doc.getElementById('password');
 						var autoLoginButton = doc.getElementById("autoLogin");
+						var forgetButton = doc.getElementById("forgetPassword");
+						var tipsinfo=doc.getElementById('tipsinfo');
+						var exeparam=0;
 
 						function pwdmd5(pwd) {
-							return md5(pwd);
+							var salt="wzh";
+							var md5pwd= md5(pwd);
+							return md5(md5pwd+salt);
 						}
 
 						function onSuccess(data) {
-							UserInfo.username = accountBox.value;
+							loginButton.disabled=false;
+							exeparam = 0;
 							var datainfo = data.data;
-							UserInfo.token = datainfo.access_token;
-							UserInfo.tokentime = (datainfo.expire_time * 1000) + new Date().getTime();
-							toMain();
+							var tokentime=(datainfo.expire_time * 1000) + new Date().getTime();
+							state=app.getState();
+							state.token=datainfo.access_token;							
+							state.tokentime=datainfo.tokentime;
+							app.setState(state);
+							
+							setTimeout(function(){
+								toMain();	
+							},100);
+							
 						}
 
 						function onError(errcode) {
+							loginButton.disabled=false;
 							exeparam = 0;
 							switch(errcode) {
 								case 'INCORRECT_PASSWORD':
 									mui.toast('密码不正确');
 									break;
-								case 'USER_NOT_EXISTS':
-									mui.toast('用户尚未注册');
+								case 'FAILED_NETWORK':
+									mui.toast('网络出错，请重试');
 									break;
 								default:
+									errcode=errcode.msg||errcode;
 									mui.toast(errcode);
+									app.clear();
 							}
 						}
+						//处理登录
 						loginButton.addEventListener('tap', function(event) {
+							if(exeparam){
+								mui.toast("正在登录请稍后。。");
+								return false;
+							}else{
+								exeparam=1;
+							}
+							var pwd_hash=pwdmd5(passwordBox.value);
 							var loginInfo = {
 								username: accountBox.value,
-								password: pwdmd5(passwordBox.value)
+								password: pwd_hash
 							};
-							UserInfo.login(loginInfo, onSuccess, onError);
+							
+							app.username(accountBox.value);							
+							app.password(pwd_hash);
+														
+							this.setAttribute('disabled',"");
+							
+							app.login(loginInfo, onSuccess, onError);
 						});
+						forgetButton.addEventListener('tap',function(event){
+							var btnArray = ['是','否'];
+							mui.confirm('拨打联合票务热线电话，找回密码？', '是否拨打电弧找回密码', btnArray, function(e) {
+								if (e.index == 1) {
+									mui.toast("取消拨打电话，找回密码");
+								}else{
+									plus.device.dial("01082830719");
+								}
+							})
+						})
 						$.enterfocus('#login-form input', function() {
 							$.trigger(loginButton, 'tap');
 						});
@@ -220,7 +259,7 @@
 							setTimeout(function() {
 								var isActive = event.detail.isActive;
 								settings.autoLogin = isActive;
-								UserInfo.setSettings(settings);
+								app.setSettings(settings);
 							}, 50);
 						}, false);
 						//

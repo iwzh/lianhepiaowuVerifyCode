@@ -1,15 +1,21 @@
-;
-mui.web_query = function(func_url, params, onSuccess, onError, retry) {
+;mui.web_query = function(func_url, params, onSuccess, onError, retry) {
 	var onSuccess = arguments[2] ? arguments[2] : function() {};
 	var onError = arguments[3] ? arguments[3] : function() {};
 	var retry = arguments[4] ? arguments[4] : 3;
 	func_url = 'http://test.lianhepiaowu.com/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
+	var st = '';
+	for(i in params) {
+		st += i + ':' + params[i]+'; ';
+	}
+	console.log('params:' + st);
+	console.log(func_url);
+		
 	mui.ajax(func_url, {
 		data: params,
 		dataType: 'json',
 		type: 'post',
 		timeout: 3000,
-		success: function(data) {
+		success: function(data) {			
 			if(data.status) {
 				onSuccess(data);
 			} else {
@@ -23,33 +29,127 @@ mui.web_query = function(func_url, params, onSuccess, onError, retry) {
 		}
 	})
 };
+(function($, owner) {
 
-;
+	owner.login = function(loginInfo, onSuccess, onError) {
+			var settings = owner.getSettings();
+			if(owner.auto_login()) {
+				var state = owner.getState();
+				var username = owner.username();
+				var token = state.token,
+					tokenlianhe = owner.password();
+				var param = {
+					'username': username,
+					'token': token,
+					'tokenlianhe': tokenlianhe,
+					'device': settings.device
+				};
+				$.web_query('autoLogin', param, onSuccess, onError);
+			} else {
+				loginInfo = loginInfo || {};
+				loginInfo.username = loginInfo.username || '';
+				loginInfo.password = loginInfo.password || '';
+				if(loginInfo.username.length < 3) {
+					return callback('账号最短为 3 个字符');
+				}
+				if(loginInfo.password.length < 4) {
+					return callback('密码过短，请修改');
+				}
+				var param = {
+					'username': loginInfo.username,
+					'tokenlianhe': loginInfo.password,
+					'device': settings.device
+				};
+				$.web_query('autoLogin', param, onSuccess, onError);
+			}
+		}
+		//清除登录信息
+	owner.clear = function() {
+		owner.setState({});
+		owner.password('');
+//		plus.storage.removeItem('password');
+	}
+	//登录用户名
+	owner.username = function(username) {
+			if(username) {
+				plus.storage.setItem('username', username);
+			} else if(username === '') {
+				plus.storage.removeItem('username');
+				return;
+			}
+			return plus.storage.getItem('username');
+		}
+		//登录密码
+	owner.password = function(password) {
+		if(password) {
+			plus.storage.setItem('password', password);	
+		} else if(password === '') {
+			plus.storage.removeItem('password');
+			return;
+		}
+		return plus.storage.getItem('password');
+		
+	}
 
-function UserInfo() {};
+	//检查是否已登录
+	owner.has_login = function() {
+		var state = owner.getState();
+		var username = owner.username();
+		var token = state.token;
+		var tokentime = state.tokentime;
+		var timestarp = new Date().getTime();		
+		if(!username || !token || !tokentime || (tokentime < timestarp)) {
+			console.log('has_login:false;username:'+username+',token:'+token+',tokentime:'+tokentime);
+			return false;
+		}
+		return true;
+	}
+	
+	//检查是否包含自动登录的信息
+	owner.auto_login = function(username) {
+		username = username || owner.username();
+		var state = owner.getState();
+		var token = state.token,
+			password = owner.password();
+		if(!username || (!token && !password)) {
+			console.log('auto_logininfo:false;username:'+username+',token:'+token+',password:'+password);
+			return false;
+		}
+		return true;
+	}
+	owner.loginSucc = function(data) {
+		if(arguments.length == 0) {
+			return 'owner.loginSucc';
+		} else {
+			var datainfo = data.data;
+			var state = owner.getState();
+			state.token = datainfo.token;
+			var tokentime = (datainfo.expire_time * 1000) + new Date().getTime();
+			state.tokentime = tokentime;
+			return true;
+		}
+	}
+	owner.loginErr = function(errorcode) {
+		if(arguments.length == 0) {
+			return 'owner.loginErr';
+		} else {
+			console.log(errorcode);
+			switch(errorcode) {
+				case 'FAILED_NETWORK':
+					$.toast('网络出错，请重试');
+					break;
+				default:
+					owner.clear();
+					$.toast(errorcode);
+			}
+			return false;
+		}
+	}
 
-UserInfo.login=function(loginInfo,onSuccess,onError){
-	var setting=UserInfo.getSettings();
-//	if(UserInfo.auto_login()){
-//		var param={'username':loginInfo.username,'token':UserInfo.token,'device':setting.device}
-//		mui.web_query('autoLogin',param,onSuccess,onError);
-//	}else{
-		var param={'username':loginInfo.username,'password':loginInfo.password,'device':setting.device}
-		mui.web_query('getToken',param,onSuccess,onError);
-//	};
-}
-//清除登录信息
-UserInfo.clear = function() {
-	plus.storage.removeItem('username');
-	plus.storage.removeItem('token');
-	plus.storage.removeItem('tokentime');
-}
-
-
-/**
+	/**
 	 * 获取应用本地配置
 	 **/
-	UserInfo.setSettings = function(settings) {
+	owner.setSettings = function(settings) {
 		settings = settings || {};
 		localStorage.setItem('$settings', JSON.stringify(settings));
 	}
@@ -57,15 +157,15 @@ UserInfo.clear = function() {
 	/**
 	 * 设置应用本地配置
 	 **/
-	UserInfo.getSettings = function() {
-			var settingsText = localStorage.getItem('$settings') || "{}";
-			return JSON.parse(settingsText);
-		}
-	
+	owner.getSettings = function() {
+		var settingsText = localStorage.getItem('$settings') || "{}";
+		return JSON.parse(settingsText);
+	}
+
 	/**
 	 * 获取当前状态
 	 **/
-	UserInfo.getState = function() {
+	owner.getState = function() {
 		var stateText = localStorage.getItem('$state') || "{}";
 		return JSON.parse(stateText);
 	};
@@ -73,75 +173,24 @@ UserInfo.clear = function() {
 	/**
 	 * 设置当前状态
 	 **/
-	UserInfo.setState = function(state) {
+	owner.setState = function(state) {
 		state = state || {};
 		localStorage.setItem('$state', JSON.stringify(state));
 	};
+	
+	/**
+	 * 获取当前user
+	 **/
+	owner.getUser = function() {
+		var stateText = localStorage.getItem('$user') || "{}";
+		return JSON.parse(stateText);
+	};
 
-//检查是否已登录
-UserInfo.has_login = function() {
-	var username = UserInfo.username();
-	var token = UserInfo.token();
-	if(!username || !token) {
-		return false;
-	}
-	return true;
-};
-//检查是否包含自动登录的信息
-UserInfo.auto_login = function() {
-	var username = UserInfo.username;
-	var token = UserInfo.token;
-	var tokentime=UserInfo.tokentime;
-	var D=new Date();
-	timestarp=D.getTime();
-	//用户名，token不存在或者token过期超过1000秒，此时需要重新登陆
-	if(!username || !token||(tokentime+1000000<timestarp)) {
-		return false;
-	}
-	return true;
-}
-//用户名
-UserInfo.username = function() {
-	if(arguments.length == 0) {
-		return plus.storage.getItem('username');
-	}
-	if(arguments[0] === '') {
-		plus.storage.removeItem('username');
-		return;
-	}
-	plus.storage.setItem('username', arguments[0]);
-};
-
-//token
-UserInfo.token = function() {
-	if(arguments.length == 0) {
-		return plus.storage.getItem('token');
-	}
-	if(arguments[0] === '') {
-		plus.storage.removeItem('token');
-		return;
-	}
-	plus.storage.setItem('token', arguments[0]);
-};
-//token
-UserInfo.tokentime = function() {
-	if(arguments.length == 0) {
-		return plus.storage.getItem('tokentime');
-	}
-	if(arguments[0] === '') {
-		plus.storage.removeItem('tokentime');
-		return;
-	}
-	plus.storage.setItem('tokentime', arguments[0]);
-};
-//设备信息
-UserInfo.device = function() {
-	if(arguments.length == 0) {
-		return plus.storage.getItem('device');
-	}
-	if(arguments[0] === '') {
-		plus.storage.removeItem('device');
-		return;
-	}
-	plus.storage.setItem('device', arguments[0]);
-}
+	/**
+	 * 设置当前user
+	 **/
+	owner.setUser = function(user) {
+		user = user || {};
+		localStorage.setItem('$user', JSON.stringify(user));
+	};
+}(mui, window.app = {}));
