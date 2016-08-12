@@ -3,7 +3,7 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>Hello MUI</title>
+		<title>联合票务验票APP</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -20,16 +20,20 @@
 				color: #6d6d72;
 				font-size: 15px;
 			}
+			.mui-btn{
+				font-size: 1.2em;
+				padding: 6px 1.5em;
+			}
 		</style>
 	</head>
 
 	<body>
 		<div class="mui-content">
-			<h5>票号</h5>
+			<h4>票号</h4>
 			<div class="mui-input-row">
-				<input id="lhcode" type="number" class="mui-input-clear" placeholder="请输入联合票务12位电子票" value="">
+				<input id="lhcode" type="number" class="mui-input-clear" style="height: 50px;" placeholder="请输入联合票务12位电子票" value="">
 			</div>
-			<h5>数量</h5>
+			<h4>数量</h4>
 			<div class="mui-numbox" data-numbox-min='1'>
 				<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
 				<input id="number" class="mui-input-numbox" type="number" value="1" />

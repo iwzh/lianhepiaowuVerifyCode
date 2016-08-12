@@ -3,7 +3,7 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>Hello MUI</title>
+		<title>联合票务验票APP</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
 		<meta name="apple-mobile-web-app-capable" content="yes">
 		<meta name="apple-mobile-web-app-status-bar-style" content="black">
@@ -86,17 +86,19 @@
 				activeTab = targetTab;
 			});
 			 //自定义事件，模拟点击“首页选项卡”
-			document.addEventListener('gohome', function() {
-				var defaultTab = document.getElementById("defaultTab");
-				//模拟首页点击
-				mui.trigger(defaultTab, 'tap');
-				//切换选项卡高亮
-				var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
-				if (defaultTab !== current) {
-					current.classList.remove('mui-active');
-					defaultTab.classList.add('mui-active');
-				}
-			});
+//			document.addEventListener('createShortcut', function() {	
+//				 // 最好的兼容性代码应该是下面这样：
+//  			
+//				var defaultTab = document.getElementById("defaultTab");
+//				//模拟首页点击
+//				mui.trigger(defaultTab, 'tap');
+//				//切换选项卡高亮
+//				var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
+//				if (defaultTab !== current) {
+//					current.classList.remove('mui-active');
+//					defaultTab.classList.add('mui-active');
+//				}
+//			});
 			
 		</script>
 	</body>

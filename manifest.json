@@ -1,20 +1,20 @@
 {
 	"@platforms": ["android", "iPhone", "iPad"],
 	"id": "LianheVerifyCode",/*应用的标识，创建应用时自动生成，勿手动修改*/
-	"name": "联合票务验票",/*应用名称，程序桌面图标名称*/
+	"name": "联合票务",/*应用名称，程序桌面图标名称*/
 	"version": {
 		"name": "1.0.0",/*应用版本名称*/
 		"code": "83"
 	},
-	"description": "",/*应用描述信息*/
+	"description": "联合票务的验票客户端，针对景区提供的手机版验票APP，方便合作景区进行景区验票和查询",/*应用描述信息*/
 	"icons": {
 		"72": "icon.png"
 	},
 	"launch_path": "login.html",/*应用的入口页面，默认为根目录下的index.html；支持网络地址，必须以http://或https://开头*/
 	"developer": {
-		"name": "",/*开发者名称*/
-		"email": "",/*开发者邮箱地址*/
-		"url": "http://www.dcloud.io"
+		"name": "王增辉",/*开发者名称*/
+		"email": "wzhec@foxmail.com",/*开发者邮箱地址*/
+		"url": "http://www.wangzenghui.com"
 	},
 	"permissions": {
 		
@@ -115,29 +115,29 @@
 			"splashscreen": {
 				"ios": {
 					"iphone": {
-						"default": "", /*iPhone3启动图片选，分辨率：320x480*/
-						"retina35": "",/*3.5英寸设备(iPhone4)启动图片，分辨率：640x960*/
-						"retina40": ""
+						"default": "D:/Users/Desktop/splash/splash320x480.png", /*iPhone3启动图片选，分辨率：320x480*/
+						"retina35": "D:/Users/Desktop/splash/splash640x960.png",/*3.5英寸设备(iPhone4)启动图片，分辨率：640x960*/
+						"retina40": "D:/Users/Desktop/splash/splash640x1136.png","retina55":"D:/Users/Desktop/splash/splash1242x2208.png","retina47":"D:/Users/Desktop/splash/splash750x1334.png","retina55l":"D:/Users/Desktop/splash/splash2208x1242.PNG"
 					},
 					"ipad": {
-						"portrait": "", /*iPad竖屏启动图片，分辨率：768x1004*/
-						"portrait-retina": "",/*iPad高分屏竖屏图片，分辨率：1536x2008*/
-						"landscape": "", /*iPad横屏启动图片，分辨率：1024x748*/
-						"landscape-retina": "", /*iPad高分屏横屏启动图片，分辨率：2048x1496*/
-						"portrait7": "", /*iPad iOS7竖屏启动图片，分辨率：768x1024*/
-						"portrait-retina7": "",/*iPad iOS7高分屏竖屏图片，分辨率：1536x2048*/
-						"landscape7": "", /*iPad iOS7横屏启动图片，分辨率：1024x768*/
-						"landscape-retina7": ""
+						"portrait": "D:/Users/Desktop/splash/splash768x1004.png", /*iPad竖屏启动图片，分辨率：768x1004*/
+						"portrait-retina": "D:/Users/Desktop/splash/splash1536x2008.png",/*iPad高分屏竖屏图片，分辨率：1536x2008*/
+						"landscape": "D:/Users/Desktop/splash/splash1024x748.png", /*iPad横屏启动图片，分辨率：1024x748*/
+						"landscape-retina": "D:/Users/Desktop/splash/splash2048x1496.png", /*iPad高分屏横屏启动图片，分辨率：2048x1496*/
+						"portrait7": "D:/Users/Desktop/splash/splash768x1024.png", /*iPad iOS7竖屏启动图片，分辨率：768x1024*/
+						"portrait-retina7": "D:/Users/Desktop/splash/splash1536x2048.png",/*iPad iOS7高分屏竖屏图片，分辨率：1536x2048*/
+						"landscape7": "D:/Users/Desktop/splash/splash1024x748.png", /*iPad iOS7横屏启动图片，分辨率：1024x768*/
+						"landscape-retina7": "D:/Users/Desktop/splash/splash2048x1536.png"
 					}
 				},
 				"android": {
-					"mdpi": "", /*普通屏启动图片，分辨率：240x282*/
-					"ldpi": "", /*大屏启动图片，分辨率：320x442*/
-					"hdpi": "", /*高分屏启动图片，分辨率：480x762*/
-					"xhdpi": "", /*720P高分屏启动图片，分辨率：720x1242*/
-					"xxhdpi": ""
+					"mdpi": "D:/Users/Desktop/splash/splash240x282.png", /*普通屏启动图片，分辨率：240x282*/
+					"ldpi": "D:/Users/Desktop/splash/splash320x480.png", /*大屏启动图片，分辨率：320x442*/
+					"hdpi": "D:/Users/Desktop/splash/splash480x762.png", /*高分屏启动图片，分辨率：480x762*/
+					"xhdpi": "D:/Users/Desktop/splash/splash720x1242.png", /*720P高分屏启动图片，分辨率：720x1242*/
+					"xxhdpi": "D:/Users/Desktop/splash/splash1080x1882.png"
 				}
-			},"debug":true
+			},"debug":false
 		}
 	},
 	"dependencies":{
@@ -200,7 +200,8 @@
 	        "index.html",
 	        "tabbar.html",
 	        "main.html",
-	        "unlock.html"
+	        "unlock.html",
+	        "guide.html"
 	      ],
 	      "priority": 0
 	    },
@@ -226,7 +227,9 @@
 	        "css/mui.min.css",
 	        "js/user.js",
 	        "js/mui.view.js",
-	        "js/mui.locker.js"
+	        "js/mui.locker.js",
+	        "images/qrcode.png",
+	        "images/icon.png"
 	      ],
 	      "refer": [
 	        "login.html"
@@ -256,11 +259,20 @@
 	        "main.html"
 	      ],
 	      "priority": 0
+	    },
+	    "guide.html": {
+	      "href": "guide.html",
+	      "resources": [
+	        "css/mui.min.css",
+	        "fonts/mui.ttf",
+	        "js/mui.min.js"
+	      ],
+	      "priority": 2,
+	      "refer": []
 	    }
 	  },
 	  "idle": {
 	    "resources": [
-	      "guide.html",
 	      "js/mui.js",
 	      "css/mui.css",
 	      "README.md"
@@ -269,6 +281,7 @@
 	},"fullscreen":true,
 	"unpackage":[
 	  "css/mui.css",
-	  "js/mui.js"
+	  "js/mui.js",
+	  "README.md"
 	]
 }

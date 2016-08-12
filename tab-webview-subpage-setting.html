@@ -34,7 +34,7 @@
 				background-color: #efeff4;
 			}
 			.mui-pages {
-				top: 46px;
+				top: 40px;
 				height: auto;
 			}
 			.mui-scroll-wrapper,
@@ -53,19 +53,19 @@
 				-webkit-transform: translate3d(-20%, 0, 0);
 				transform: translate3d(-20%, 0, 0);
 			}
-			.mui-navbar {
+			/*.mui-navbar {
 				position: fixed;
 				right: 0;
 				left: 0;
 				z-index: 10;
-				height: 44px;
+				height: 46px;
 				background-color: #f7f7f8;
-			}
+			}*/
 			.mui-navbar .mui-bar {
 				position: absolute;
-				background: transparent;
+				/*background: transparent;*/
 				text-align: center;
-			}
+			}	
 			.mui-android .mui-navbar-inner.mui-navbar-left {
 				opacity: 0;
 			}
@@ -134,13 +134,13 @@
 		</div>
 		<!--页面主结构结束-->
 		<!--单页面开始-->
-		<div id="setting" class="mui-page">
+		<div id="setting" class="mui-page" style="top: -40px;">
 			<!--页面标题栏开始-->
-			<div class="mui-navbar-inner mui-bar mui-bar-nav">
-				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+			<div class="mui-navbar-inner mui-bar mui-bar-nav"  style="top: -40px; display: none;">
+				<!--<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
 					<span class="mui-icon mui-icon-left-nav"></span>
-				</button>
-				<h1 class="mui-center mui-title">设置</h1>
+				</button>-->
+				<!--<h1 class="mui-center mui-title">设置</h1>-->
 			</div>
 			<!--页面标题栏结束-->
 			<!--页面主内容区开始-->
@@ -151,10 +151,13 @@
 							<li class="mui-table-view-cell">
 								<a id="tel" class="mui-navigate-right">客服电话</a>
 							</li>
+							<li class="mui-table-view-cell">
+								<a href="#lock" class="mui-navigate-right">设置锁屏图案</a>
+							</li>
 						</ul>
 						<ul class="mui-table-view mui-table-view-chevron">
 							<li class="mui-table-view-cell">
-								<a href="#lock" class="mui-navigate-right">设置锁屏图案</a>
+								<a href="#aboutinfo" class="mui-navigate-right">关于</a>
 							</li>
 						</ul>
 						<ul class="mui-table-view">
@@ -169,7 +172,7 @@
 		</div>
 		
 		
-			<div id="lock" class="mui-page">
+		<div id="lock" class="mui-page">
 			<div class="mui-navbar-inner mui-bar mui-bar-nav">
 				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
 					<span class="mui-icon mui-icon-left-nav"></span>设置
@@ -188,6 +191,26 @@
 					</ul>
 					<div class="mui-locker" data-locker-width='320' data-locker-height='320' data-locker-options='{"ringColor":"rgba(221,221,221,1)","fillColor":"#ffffff","pointColor":"rgba(0,136,204,1)","lineColor":"rgba(0,136,204,1)"}'>
 					</div>
+				</div>
+			</div>
+		</div>
+		<!--关于软件-->
+		<div id="aboutinfo" class="mui-page">
+			<div class="mui-navbar-inner mui-bar mui-bar-nav">
+				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>设置
+				</button>
+				<h1 class="mui-center mui-title">联合票务验票客户端</h1>
+			</div>
+			<div class="mui-page-content">
+				<div class="mui-content-padded">
+					<div class="qrcode">
+					<img id="qrcode" src="images/qrcode.png" width="100%" />
+					<a id="createShortcute" style="width: 60%;margin: 15px auto;padding: 5px;" class="mui-plus-visible mui-btn mui-btn-block mui-btn-red">创建桌面图标</a>
+				</div>
+				<p>联合票务验票客户端是联合至上(北京)文化发展有限公司针对景区供应商提供的便捷手机验票APP。<br/>主要是为了方便景区验票。提高景区验票效率。增强客户体验。
+					更多详细介绍，请到<a href="http://www.lianhepiaowu.net/"> 联合票务官网 </a>查看</p>
+				<p style="text-align: center;color: #ccc;text-indent: 0;">当前版本：<span id="version">1.0.0</span></p>	
 				</div>
 			</div>
 		</div>
@@ -239,37 +262,28 @@
 		var viewApi = mui('#app').view({
 			defaultPage: '#setting'
 		});
-		
-/*		document.getElementById("about").addEventListener('tap',function () {
-			//获得主页面的webview
-			var main = plus.webview.currentWebview().parent();
-			//触发主页面的gohome事件
-			mui.fire(main,'gohome');
-		});*/
-		var plusdevice=false;
+	
+//		var plusdevice=false;
 		mui.plusReady(function(){
-			plusdevice=plus.device;
+//			plusdevice=plus.device;
 		});
 		//客服电话
 		document.getElementById("tel").addEventListener('tap',
 			function() {
-				if(plusdevice) {
+				if(mui.os.plus) {
 					var btnArray = ['是', '否'];
 					mui.confirm('拨打联合票务热线电话？', '拨打热线电话', btnArray, function(e) {
 						if(e.index == 0) {
-							plusdevice.dial("01082830719");
+							plus.device.dial("01082830719");
 						}
 					})
 				} else {
 					this.setAttribute('href', 'tel:01082830719');
 				}
 			});
-			//退出操作******************
+		
+		//退出操作******************
 		document.getElementById('exit').addEventListener('tap', function() {
-			//获得主页面的webview
-			var main = plus.webview.currentWebview().parent();
-			//触发主页面的gohome事件
-			//			mui.fire(main,'exit');
 			if(mui.os.ios) {
 				app.clear();
 				mui.openWindow({
@@ -317,10 +331,20 @@
 			});
 
 		});
+		//创建桌面快捷方式
+			(function($,doc){
+				var createShortcutebtn=doc.getElementById("createShortcute");
+				createShortcutebtn.addEventListener('tap',function(){				
+					if($.os.stream&&$.os.android){
+						plus.navigator.createShortcut({name:'联合验票端',icon:'images/icon.png'});
+		    		}else{
+		    			$.toast("仅限流应用支持创建快捷方式");
+		    		}
+				});
+			}(mui,document));
 			 //************************
 		 //锁屏设置
 		(function($, doc) {
-			//$.init();
 			$.plusReady(function() {
 				var settings = app.getSettings();
 				var lockStateButton = doc.getElementById("lockState");
@@ -395,6 +419,10 @@
 					var locker = document.querySelector('.mui-locker');
 					lockStateButton.classList[settings.gestures ? 'add' : 'remove']('mui-active')
 					locker.style.display = settings.gestures ? 'block' : 'none';
+				}
+				//进入手执设定界面时
+				if (e.detail.page.id == 'about') {
+					
 				}
 				//				console.log(e.detail.page.id + ' show');
 			});

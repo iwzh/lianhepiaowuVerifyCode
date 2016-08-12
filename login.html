@@ -92,18 +92,17 @@
 		<script src="js/user.js"></script>
 		<script>
 			(function($, doc) {
-			var subWebview=null,template=null,settings='',state='';
+			var subWebview=null,template=null,toMain=null, settings='',state='';
 						var accountBox = doc.getElementById('account');
 						var passwordBox = doc.getElementById('password');
 					$.init({
 						statusBarBackground: '#f7f7f7'
 					});
 					$.plusReady(function() {
-						plus.screen.lockOrientation("portrait-primary");		
-						settings = app.getSettings();
-						state = app.getState();				
+						plus.screen.lockOrientation("portrait-primary");
+//						plus.storage.removeItem("lauchFlag");
 						var mainPage = $.preload({
-							"id": 'main',
+								"id": 'main',
 							"url": 'main.html'
 						});
 						var toMain = function() {
@@ -120,67 +119,94 @@
 								});
 							}, 10);			
 						};
-						if(!settings.device){
-							if(plus.device.uuid){
-								settings.device={"uuid":plus.device.uuid,"model":plus.device.model,"imei":plus.device.imei};
-								app.setSettings(settings);	
-							}else{
-								mui.alert("请允许应用获取手机信息的权限","无权限提示");
+
+						//读取本地存储，检查是否为首次启动
+						var showGuide = plus.storage.getItem("lauchFlag");
+						
+						if(showGuide){
+							//有值，说明已经显示过了，无需显示；
+							//登录配置
+							settings = app.getSettings();
+						
+							//关闭splash页面；
+							plus.navigator.closeSplashscreen();
+							plus.navigator.setFullscreen(false);
+							
+							if(!settings.device){
+								if(plus.device.uuid){
+									settings.device={"uuid":plus.device.uuid,"model":plus.device.model,"imei":plus.device.imei};
+									app.setSettings(settings);	
+								}else{
+									mui.alert("请允许应用获取手机信息的权限","无权限提示");
+								}
 							}
-						}
-						var has_login=app.has_login();
-						var username = app.username();
-						if(username){
-							accountBox.value=username;
-						}
-						//检查 "登录状态/锁屏状态" 开始
-						if(settings.autoLogin && state.token && username && settings.gestures) {
-							console.log(settings.gestures);
-							$.openWindow({
-								url: 'unlock.html',
-								id: 'unlock',
-								show: {
-									aniShow: 'pop-in'
+							var has_login=app.has_login();
+							var username = app.username();
+							var tokenlianhe=app.password();
+							if(username){
+								accountBox.value=username;
+							}
+							
+							//检查 "登录状态/锁屏状态" 开始
+							if(settings.autoLogin && state.token && username && settings.gestures) {
+								$.openWindow({
+									url: 'unlock.html',
+									id: 'unlock',
+									show: {
+										aniShow: 'pop-in'
+									},
+									waiting: {
+										autoShow: false
+									}
+								});
+								return ;
+							} else if(settings.autoLogin && has_login) {
+								toMain();
+							}else if(settings.autoLogin && app.auto_login()) {
+								
+								mui.toast("正在为您自动登录。。。");
+								var token = state.token;
+								passwordBox.value=tokenlianhe;
+								var param = {
+									'username': username,
+									'device': settings.device
+								};
+								if(!token&&!tokenlianhe){
+									mui.toast("登录错误，请手动登录");
+								}else{
+									if(token){
+										param.token=token;
+									}
+									if(tokenlianhe){
+										param.tokenlianhe=tokenlianhe;
+									}
+									mui.web_query('autoLogin', param, onSuccess, onError);	
+								}							
+							} else {
+								app.clear() 
+							}
+							
+						}else{
+							//显示启动导航
+							mui.openWindow({
+								id:'guide',
+								url:'guide.html',
+								show:{
+									aniShow:'none'
 								},
-								waiting: {
-									autoShow: false
+								waiting:{
+									autoShow:false
 								}
 							});
-							return ;
-						} else if(settings.autoLogin && has_login) {
-							console.log('has_login');
-							toMain();
-						}else if(settings.autoLogin && app.auto_login()) {
-							
-							mui.toast("正在为您自动登录。。。");
-							var username = app.username();
-							var token = state.token,tokenlianhe = app.password();
-							accountBox.value=username;
-							passwordBox.value=tokenlianhe;
-							var param = {
-								'username': username,
-								'device': settings.device
-							};
-							if(!token&&!tokenlianhe){
-								mui.toast("登录错误，请手动登录");
-							}else{
-								if(token){
-									param.token=token;
-								}
-								if(tokenlianhe){
-									param.tokenlianhe=tokenlianhe;
-								}
-								mui.web_query('autoLogin', param, onSuccess, onError);	
-							}							
-						} else {
-							app.clear() 
-						}
+						}		
+						
 						//检查 "登录状态/锁屏状态" 结束
 						var loginButton = doc.getElementById('login');
 						var autoLoginButton = doc.getElementById("autoLogin");
 						var forgetButton = doc.getElementById("forgetPassword");
 						var tipsinfo=doc.getElementById('tipsinfo');
 						var exeparam=0;
+							var pwd_hash;
 
 						function pwdmd5(pwd) {
 							var salt="wzh";
@@ -214,6 +240,12 @@
 								case 'FAILED_NETWORK':
 									mui.toast('网络出错，请重试');
 									break;
+								case 'USERNAME_SHORT':
+									mui.toast('账号最短为 3 个字符');
+									break;
+								case 'PASSWORD_SHORT':
+									mui.toast('密码过短，请修改');
+									break;
 								default:
 									errcode=errcode.msg||errcode;
 									mui.toast(errcode);
@@ -228,7 +260,12 @@
 							}else{
 								exeparam=1;
 							}
-							var pwd_hash=pwdmd5(passwordBox.value);
+							if(passwordBox.value===tokenlianhe){
+								pwd_hash=tokenlianhe;
+							}else{
+								pwd_hash=pwdmd5(passwordBox.value);
+							}
+							console.log()
 							var loginInfo = {
 								username: accountBox.value,
 								password: pwd_hash

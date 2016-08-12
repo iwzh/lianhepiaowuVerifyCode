@@ -2,13 +2,16 @@
 	var onSuccess = arguments[2] ? arguments[2] : function() {};
 	var onError = arguments[3] ? arguments[3] : function() {};
 	var retry = arguments[4] ? arguments[4] : 3;
-	func_url = 'http://test.lianhepiaowu.com/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
-	var st = '';
-	for(i in params) {
-		st += i + ':' + params[i]+'; ';
-	}
-	console.log('params:' + st);
-	console.log(func_url);
+	func_url = 'http://www.lianhepiaowu.net/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
+	
+	/*
+	 * 
+		for(i in params) {
+			st += i + ':' + params[i]+'; ';
+		}
+		console.log('params:' + st);
+		console.log(func_url);
+	*/
 		
 	mui.ajax(func_url, {
 		data: params,
@@ -50,10 +53,10 @@
 				loginInfo.username = loginInfo.username || '';
 				loginInfo.password = loginInfo.password || '';
 				if(loginInfo.username.length < 3) {
-					return callback('账号最短为 3 个字符');
+					return onError('USERNAME_SHORT');
 				}
 				if(loginInfo.password.length < 4) {
-					return callback('密码过短，请修改');
+					return onError('PASSWORD_SHORT');
 				}
 				var param = {
 					'username': loginInfo.username,
