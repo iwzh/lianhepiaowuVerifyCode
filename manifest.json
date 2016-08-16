@@ -141,143 +141,152 @@
 		}
 	},
 	"dependencies":{
-	  "pages": {
-	    "index.html": {
-	      "href": "index.html",
-	      "resources": [
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "fonts/mui.ttf",
-	        "js/app.js",
-	        "tabbar.html",
-	        "js/update.js",
-	        "js/user.js"
-	      ],
-	      "priority": 0,
-	      "refer": [
-	        "tab-webview-main.html",
-	        "template.html",
-	        "login.html"
-	      ]
-	    },
-	    "tab-webview-main.html": {
-	      "resources": [
-	        "tab-webview-subpage-about.html",
-	        "fonts/mui.ttf"
-	      ],
-	      "refer": [
-	        "tab-webview-subpage-setting.html",
-	        "tab-webview-subpage-chat.html",
-	        "tab-webview-subpage-contact.html"
-	      ],
-	      "priority": 0
-	    },
-	    "tabbar.html": {
-	      "resources": [
-	        "fonts/mui.ttf",
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "js/md5.min.js",
-	        "js/app.js",
-	        "js/user.js"
-	      ],
-	      "refer": [
-	        "login.html",
-	        "template.html"
-	      ],
-	      "priority": 0
-	    },
-	    "login.html": {
-	      "resources": [
-	        "js/mui.enterfocus.js",
-	        "js/user.js",
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "js/md5.min.js",
-	        "fonts/mui.ttf"
-	      ],
-	      "refer": [
-	        "index.html",
-	        "tabbar.html",
-	        "main.html",
-	        "unlock.html",
-	        "guide.html"
-	      ],
-	      "priority": 0
-	    },
-	    "main.html": {
-	      "resources": [
-	        "tab-webview-subpage-about.html",
-	        "fonts/mui.ttf",
-	        "js/user.js",
-	        "js/mui.min.js",
-	        "css/mui.min.css"
-	      ],
-	      "refer": [
-	        "tab-webview-subpage-setting.html",
-	        "login.html",
-	        "tab-webview-subpage-about.html"
-	      ],
-	      "priority": 0
-	    },
-	    "tab-webview-subpage-setting.html": {
-	      "resources": [
-	        "js/mui.min.js",
-	        "fonts/mui.ttf",
-	        "css/mui.min.css",
-	        "js/user.js",
-	        "js/mui.view.js",
-	        "js/mui.locker.js",
-	        "images/qrcode.png",
-	        "images/icon.png"
-	      ],
-	      "refer": [
-	        "login.html"
-	      ],
-	      "priority": 0
-	    },
-	    "tab-webview-subpage-about.html": {
-	      "resources": [
-	        "js/user.js",
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "fonts/mui.ttf"
-	      ],
-	      "refer": [],
-	      "priority": 0
-	    },
-	    "unlock.html": {
-	      "resources": [
-	        "js/mui.locker.js",
-	        "css/mui.min.css",
-	        "fonts/mui.ttf",
-	        "js/mui.min.js",
-	        "js/user.js"
-	      ],
-	      "refer": [
-	        "login.html",
-	        "main.html"
-	      ],
-	      "priority": 0
-	    },
-	    "guide.html": {
-	      "href": "guide.html",
-	      "resources": [
-	        "css/mui.min.css",
-	        "fonts/mui.ttf",
-	        "js/mui.min.js"
-	      ],
-	      "priority": 2,
-	      "refer": []
-	    }
-	  },
-	  "idle": {
-	    "resources": [
-	      "js/mui.js",
-	      "css/mui.css",
-	      "README.md"
-	    ]
-	  }
+		"pages": {
+			"index.html": {
+				"href": "index.html",
+				"resources": [
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/app.js",
+					"tabbar.html",
+					"js/update.js",
+					"js/user.js"
+				],
+				"priority": 0,
+				"refer": [
+					"tab-webview-main.html",
+					"template.html",
+					"login.html"
+				]
+			},
+			"tab-webview-main.html": {
+				"resources": [
+					"tab-webview-subpage-about.html",
+					"fonts/mui.ttf"
+				],
+				"refer": [
+					"tab-webview-subpage-setting.html",
+					"tab-webview-subpage-chat.html",
+					"tab-webview-subpage-contact.html"
+				],
+				"priority": 0
+			},
+			"tabbar.html": {
+				"resources": [
+					"fonts/mui.ttf",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"js/md5.min.js",
+					"js/app.js",
+					"js/user.js"
+				],
+				"refer": [
+					"login.html",
+					"template.html"
+				],
+				"priority": 0
+			},
+			"login.html": {
+				"resources": [
+					"js/mui.enterfocus.js",
+					"js/user.js",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"js/md5.min.js",
+					"fonts/mui.ttf"
+				],
+				"refer": [
+					"index.html",
+					"tabbar.html",
+					"main.html",
+					"unlock.html",
+					"guide.html"
+				],
+				"priority": 0
+			},
+			"main.html": {
+				"resources": [
+					"tab-webview-subpage-about.html",
+					"fonts/mui.ttf",
+					"js/user.js",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"tab-webview-subpage-bluetooth.html"
+				],
+				"refer": [
+					"tab-webview-subpage-setting.html",
+					"login.html"
+				],
+				"priority": 0
+			},
+			"tab-webview-subpage-setting.html": {
+				"resources": [
+					"js/mui.min.js",
+					"fonts/mui.ttf",
+					"css/mui.min.css",
+					"js/user.js",
+					"js/mui.view.js",
+					"js/mui.locker.js",
+					"images/qrcode.png",
+					"images/icon.png"
+				],
+				"refer": [
+					"login.html"
+				],
+				"priority": 0
+			},
+			"tab-webview-subpage-about.html": {
+				"resources": [
+					"js/user.js",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"fonts/mui.ttf"
+				],
+				"refer": [],
+				"priority": 0
+			},
+			"unlock.html": {
+				"resources": [
+					"js/mui.locker.js",
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/mui.min.js",
+					"js/user.js"
+				],
+				"refer": [
+					"login.html",
+					"main.html"
+				],
+				"priority": 0
+			},
+			"guide.html": {
+				"href": "guide.html",
+				"resources": [
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/mui.min.js"
+				],
+				"priority": 2,
+				"refer": []
+			},
+			"tab-webview-subpage-bluetooth.html": {
+				"resources": [
+					"js/mui.min.js",
+					"fonts/mui.ttf",
+					"css/mui.min.css"
+				],
+				"refer": [],
+				"priority": 0
+			}
+		},
+		"idle": {
+			"resources": [
+				"js/mui.js",
+				"css/mui.css",
+				"README.md"
+			]
+		}
 	},"fullscreen":true,
 	"unpackage":[
 	  "css/mui.css",

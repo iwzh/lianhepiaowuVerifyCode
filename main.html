@@ -27,8 +27,12 @@
 				<span class="mui-icon mui-icon-home"></span>
 				<span class="mui-tab-label">验票</span>
 			</a>
-			<a class="mui-tab-item" href="tab-webview-subpage-setting.html">
+			<a class="mui-tab-item" href="tab-webview-subpage-bluetooth.html">
 				<span class="mui-icon mui-icon-gear"></span>
+				<span class="mui-tab-label">蓝牙</span>
+			</a>
+			<a class="mui-tab-item" href="tab-webview-subpage-setting.html">
+				<span class="mui-icon mui-icon-info"></span>
 				<span class="mui-tab-label">我的</span>
 			</a>
 		</nav>
@@ -36,16 +40,16 @@
 		<script type="text/javascript" charset="utf-8">
 			 //mui初始化
 			mui.init();
-			var subpages = ['tab-webview-subpage-about.html', 'tab-webview-subpage-setting.html'];
+			var subpages = ['tab-webview-subpage-about.html', 'tab-webview-subpage-setting.html', 'tab-webview-subpage-bluetooth.html'];
 			var subpage_style = {
 				top: '45px',
 				bottom: '51px'
 			};
-			
+			var selfcurrentWebview=null;
 			var aniShow = {};
 			 //创建子页面，首个选项卡页面显示，其它均隐藏；
 			mui.plusReady(function() {				
-					var self = plus.webview.currentWebview();
+					selfcurrentWebview = plus.webview.currentWebview();
 					for(var i = 0; i < 2; i++) {
 						var temp = {};
 						var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
@@ -53,10 +57,10 @@
 							sub.hide();
 						} else {
 							temp[subpages[i]] ="true";
-						mui.extend(aniShow,temp);
+							mui.extend(aniShow,temp);
+						}
+						selfcurrentWebview.append(sub);
 					}
-					self.append(sub);
-				}
 			});
 			 //当前激活选项
 			var activeTab = subpages[0];
@@ -66,6 +70,12 @@
 				var targetTab = this.getAttribute('href');
 				if (targetTab == activeTab) {
 					return;
+				}
+				//蓝牙
+				if(targetTab=='tab-webview-subpage-bluetooth.html'){
+					var sub = plus.webview.create(subpages[2], subpages[2], subpage_style);
+					sub.hide();
+					selfcurrentWebview.append(sub);
 				}
 				//更换标题
 				title.innerHTML = this.querySelector('.mui-tab-label').innerHTML;

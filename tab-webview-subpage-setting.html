@@ -114,7 +114,7 @@
 			.mui-content-padded {
 				margin: 10px 0px;
 			}
-			.mui-locker {
+			.mui-locker,.mui-bluesettings {
 				margin: 35px auto;
 				display: none;
 			}
@@ -154,6 +154,9 @@
 							<li class="mui-table-view-cell">
 								<a href="#lock" class="mui-navigate-right">设置锁屏图案</a>
 							</li>
+							<li class="mui-table-view-cell">
+								<a href="#bluetooth" class="mui-navigate-right">设置蓝牙打印</a>
+							</li>
 						</ul>
 						<ul class="mui-table-view mui-table-view-chevron">
 							<li class="mui-table-view-cell">
@@ -172,6 +175,8 @@
 		</div>
 		
 		
+		
+		<!--锁屏设置-->
 		<div id="lock" class="mui-page">
 			<div class="mui-navbar-inner mui-bar mui-bar-nav">
 				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
@@ -194,6 +199,32 @@
 				</div>
 			</div>
 		</div>
+		
+		<!--蓝牙打印机设置-->
+		<div id="bluetooth" class="mui-page">
+			<div class="mui-navbar-inner mui-bar mui-bar-nav">
+				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+					<span class="mui-icon mui-icon-left-nav"></span>设置
+				</button>
+				<h1 class="mui-center mui-title">打印设置</h1>
+			</div>
+			<div class="mui-page-content">
+				<div class="mui-content-padded">
+					<ul class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell">
+							打印
+							<div id="BlueState" class="mui-switch">
+								<div class="mui-switch-handle"></div>
+							</div>
+						</li>
+					</ul>
+					<div class="mui-bluesettings">
+								打印模版
+					</div>
+				</div>
+			</div>
+		</div>	
+			
 		<!--关于软件-->
 		<div id="aboutinfo" class="mui-page">
 			<div class="mui-navbar-inner mui-bar mui-bar-nav">
@@ -391,7 +422,26 @@
 			});
 		}(mui, document));
  		//********************
- 		
+ 		/*蓝牙打印设置*/
+		(function($, doc) {
+			$.plusReady(function() {
+				var settings = app.getSettings();
+				var BlueStateButton = doc.getElementById("BlueState");
+				var bluesettings = doc.querySelector('.mui-bluesettings');
+				BlueStateButton.classList[settings.bluestate ? 'add' : 'remove']('mui-active')
+				bluesettings.style.display = settings.bluestate ? 'block' : 'none';
+				BlueStateButton.addEventListener('toggle', function(event) {
+					var isActive = event.detail.isActive;
+					bluesettings.style.display = isActive ? 'block' : 'none';
+					if (!isActive) {
+						settings.bluestate = '';
+						app.setSettings(settings);
+					}
+				}, false);			
+			});
+		}(mui, document));
+		/*蓝牙打印设置结束*/
+		
 		var view = viewApi.view;
 		(function($) {
 			//处理view的后退与webview后退
