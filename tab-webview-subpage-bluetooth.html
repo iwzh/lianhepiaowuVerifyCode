@@ -33,20 +33,16 @@
 			<h5 class="mui-content-padded">点击设备连接，连接成功会跳转到验票界面。验票后即可立即打印小票</h5>
 			<h5 class="mui-content-padded" style="margin: 35px 10px 15px;">已配对设备</h5>
 			<ul id="contactlist" class="mui-table-view mui-table-view-chevron">
-				<li class="mui-table-view-cell" id="BleDevice_active_mac_address">
-					<!--<span>配对设备</span>
-					<div class="mui-switch switch-contact mui-active">
-						<div class="mui-switch-handle"></div>
-					</div>-->
+				<!--<li class="mui-table-view-cell" id="BleDevice_active_mac_address">
 					<a href="" class="mui-navigate-right">配对设备<span class="mui-badge mui-badge-success">已连接</span></a>
 				</li>
 				<li class="mui-table-view-cell" id="BleDevice_getAddress_mac_address">
 					<a href="" class="mui-navigate-right">配对设备<span class="mui-badge mui-badge-warning">未连接</span></a>
-				</li>
+				</li>-->
 			</ul>
 			<h5 class="mui-content-padded" style="margin: 35px 10px 15px;">未配对设备</h5>
 			<ul id="nocontactlist" class="mui-table-view mui-table-view-chevron">
-				<li class="mui-table-view-cell" id="BleDevice_no_active_mac_address"><a href="" class="mui-navigate-right">未配对设备<span class="mui-badge mui-badge-red">未配对</span></a></li>
+				<!--<li class="mui-table-view-cell" id="BleDevice_no_active_mac_address"><a href="" class="mui-navigate-right">未配对设备<span class="mui-badge mui-badge-red">未配对</span></a></li>-->
 			</ul>
 		</div>
 		<footer id="footer" class="mui-bar mui-bar-footer">
@@ -62,7 +58,9 @@
 				UUID = null,
 				main = null,
 				bluetoothSocket = null,
-				BluetoothDevice = null;
+				BluetoothDevice = null,
+				IntentFilter=null;
+				
 				var vlist1 = document.getElementById('contactlist'); //注册容器用来显示未配对设备
 				var vlist2 = document.getElementById('nocontactlist'); //注册容器用来显示未配对设备				
 				//mui初始化
@@ -121,22 +119,28 @@
 					device = BAdapter.getRemoteDevice(mac_address);
 					plus.android.importClass(device);
 
+				}
+				//蓝牙连接或者uuid为空时，需要重新导入蓝牙socket
+				if(bluetoothSocket== null||UUID ==null){					
 					UUID = plus.android.importClass("java.util.UUID");
 					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
 				}
-				plus.android.importClass(bluetoothSocket);
+				
+					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+					plus.android.importClass(bluetoothSocket);
 
 				if(!bluetoothSocket.isConnected()) {
 					console.log('检测到设备未连接，尝试连接....');
 					bluetoothSocket.connect();
 					if(!bluetoothSocket.isConnected()) {
 						mui.toast('设备未连接，重新连接失败，请确保设备开启。');
+					}else{
+						mui.toast('设备已连接。');
 					}
 				}
 				
 				var lianjie=document.getElementById(mac_address);
-				var span=lianjie.getElementsByClassName('mui-badge-warning');
+				var span=lianjie.getElementsByClassName('mui-badge');
 				if(span){					
 					span[0].innerHTML="已连接";
 					span[0].classList['add']('mui-badge-success');					
@@ -146,9 +150,12 @@
 				console.log('设备已连接 bluetoothSocket.isConnected()=' + bluetoothSocket.isConnected());
 
 				if(bluetoothSocket.isConnected()) {
+//					bluetoothSocket.start();//开启蓝牙socket连接，不开启无法打印
+//					bluetoothSocket.accept();//开启蓝牙socket连接，不开启无法打印
+//					bluetoothSocket.start();//开启蓝牙socket连接，不开启无法打印
 					var outputStream = bluetoothSocket.getOutputStream();
 					plus.android.importClass(outputStream); 
-					var string = '测试测试\r\n\r\n\r\n';
+					var string = '这是王增辉的测试打印测试测试测试测试\r\n\r\n\r\n';
 					var bytes = plus.android.invoke(string, 'getBytes', 'gbk');
 					var clearFormat = [0x1b, 0x40]; //复位打印机
 					outputStream.write(clearFormat);
@@ -164,7 +171,7 @@
 			});
 			//为蓝牙列表下li增加触摸事件
 			mui('#nocontactlist').on('tap', 'li', function() {
-				contactBlueDevices(this);
+				contactBlueDevices(this.id);
 			});
 			
 			document.getElementById("search").addEventListener('tap', function() {
@@ -185,34 +192,83 @@
 				return true;
 			}
 			//检测设备是否配对
-			function checkBondState(){
-				
-			}
+			
 			//未配对的设备，此时开始连接
-			function contactBlueDevices(param){
+			function contactBlueDevices(mac_address){
+				if(!mac_address) {
+					mui.toast('请选择蓝牙打印机');
+					return;
+				}
 				if(device == null) {
 					main = plus.android.runtimeMainActivity();
 					BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
 					BAdapter = BluetoothAdapter.getDefaultAdapter();
 					device = BAdapter.getRemoteDevice(mac_address);
 					plus.android.importClass(device);
-				//蓝牙信息	
-				BluetoothDevice = plus.android.importClass("android.bluetooth.BluetoothDevice");
+					
+				}
+				if(BluetoothDevice==null){
+					//蓝牙信息	
+					BluetoothDevice = plus.android.importClass("android.bluetooth.BluetoothDevice");
+				}
 				var bdevice = new BluetoothDevice();
 				if(device.getBondState()==bdevice.BOND_NONE){
-					var ttt='未配对';
 					//地址一样，执行配对
-					if(address == device.getAddress()){
+					if(mac_address == device.getAddress()){
+						console.log('正在执行配对');
 						if(BleDevice.createBond()) {
+							console.log("配对成功");
 							
 						}
 					}					
-				}
+				}				
+				//蓝牙连接或者uuid为空时，需要重新导入蓝牙socket
+				if(bluetoothSocket== null||UUID ==null){					
 					UUID = plus.android.importClass("java.util.UUID");
 					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 					bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
+					plus.android.importClass(bluetoothSocket);
 				}
-				plus.android.importClass(bluetoothSocket);
+				if(!bluetoothSocket.isConnected()) {
+					console.log('检测到设备未连接，尝试连接....');
+					bluetoothSocket.connect();
+					if(!bluetoothSocket.isConnected()) {
+						mui.toast('设备未连接，重新连接失败，请确保设备开启。');
+					}else{
+						mui.toast('设备连接成功。');
+					}
+				}
+				
+				var lianjie=document.getElementById(mac_address);
+				var span=lianjie.getElementsByClassName('mui-badge');
+				if(span){					
+					span[0].innerHTML="已连接";
+					span[0].classList['add']('mui-badge-success');					
+					span[0].classList['remove']('mui-badge-warning');
+				}
+				
+				console.log('设备已连接 bluetoothSocket.isConnected()=' + bluetoothSocket.isConnected());
+				if(bluetoothSocket.isConnected()) {
+					if(mui.os.plus) {
+						var btnArray = ['是', '否'];
+						mui.confirm('蓝牙已连接成功，是否测试打印？', '测试打印', btnArray, function(e) {
+							if(e.index == 0) {
+								print(mac_address)
+							}else{
+								console.log('取消打印');
+							}
+						})
+					} else {
+						var confirmresult=confirm("蓝牙已连接成功，是否测试打印？");
+						if(confirmresult){							
+							print(mac_address);
+						}else{
+								console.log('取消测试打印');							
+						}
+					}
+				}else{
+					mui.toast('设备未连接，重新连接失败，请确保设备开启并手动连接。');
+				}
 			}
 			//address=""搜索蓝牙//address=设备mac地址，自动配对给出mac地址的设备
 			function searchDevices(address) {
@@ -225,11 +281,16 @@
 					BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
 					BAdapter = BluetoothAdapter.getDefaultAdapter();
 				}
-				
+				//检查蓝牙是否开启
 				checkBluetoothIsEnabled();
 				
-				IntentFilter = plus.android.importClass('android.content.IntentFilter');
-				BluetoothDevice = plus.android.importClass("android.bluetooth.BluetoothDevice");
+				if(IntentFilter==null){
+					IntentFilter = plus.android.importClass('android.content.IntentFilter');	
+				}				
+				if(BluetoothDevice==null){
+					//蓝牙信息	
+					BluetoothDevice = plus.android.importClass("android.bluetooth.BluetoothDevice");
+				}
 				var filter = new IntentFilter();
 				var bdevice = new BluetoothDevice();
 				var on = un = null;
@@ -244,6 +305,7 @@
 						//通过intent实例引入intent类，方便以后的‘.’操作
 						//获取action
 						console.log(intent.getAction()); 
+
 						if(intent.getAction() == "android.bluetooth.adapter.action.DISCOVERY_FINISHED") {
 							console.log("搜索结束")
 							main.unregisterReceiver(receiver); //取消监听
