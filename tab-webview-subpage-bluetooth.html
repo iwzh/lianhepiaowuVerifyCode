@@ -75,18 +75,7 @@
 				main = plus.android.runtimeMainActivity();
 				BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
 				BAdapter = BluetoothAdapter.getDefaultAdapter(); //获得本机蓝牙适配器
-				
-				if(!BAdapter.isEnabled()) {
-					console.log('检测到未打开蓝牙,尝试打开中....');
-					mui.toast('检测到未打开蓝牙,尝试打开中....');
-					var status = BAdapter.enable();
-					if(status){
-						mui.toast('已为您开启蓝牙,正在搜索设备...');
-					}else{
-						mui.toast('开启蓝牙失败,请手动开启蓝牙');
-						return; 
-					}
-				}
+				checkBluetoothIsEnabled();//检查蓝牙是否开启
 
 				var lists = BAdapter.getBondedDevices(); //获取配对的设备列表
 				plus.android.importClass(lists);
