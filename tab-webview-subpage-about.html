@@ -51,6 +51,7 @@
 	</body>
 	<script src="js/mui.min.js"></script>
 	<script src="js/user.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/pr.js" type="text/javascript" charset="utf-8"></script>
 <script>
 	//主列表点击事件
 	var lhcode = document.getElementById('lhcode'),
@@ -66,6 +67,7 @@
 	mui.init({
 		swipeBack: true //启用右滑关闭功能
 	});
+	var Bluetoothapi=null;
 	mui.plusReady(function() {
 
 		settings = app.getSettings();
@@ -84,7 +86,19 @@
 				mui.alert("请允许应用获取手机信息的权限", "无权限提示");
 			}
 		}
+		
+		Bluetoothapi=mui().bluetooth();
+//		var bluelist=Bluetoothapi.scan();		
+//		console.log(bluelist);
+		var macaddress=Bluetoothapi.getMacAddress();
+//		console.log('address:'+macaddress);
+//		Bluetoothapi.testprint(macaddress,"我要在首页测试打印效果。\n\n这是页面加载时需要打印的效果。\n\n\n\n");
+//		var ttttttt=Bluetoothapi.seachBT();
+//		console.log('ttt:'+ttttttt);
+		
 	});
+	
+	
 	verifyCodeBtn.addEventListener('tap', function() {
 		state = app.getState();
 		var token = state.token;
@@ -105,7 +119,6 @@
 	queryCodeBtn.addEventListener('tap', function() {
 		state = app.getState();
 		var token = state.token;
-		console.log(token);
 		code = lhcode.value;
 		requestbefor(this, code);
 		mui.web_query('queryCode', {
@@ -115,6 +128,7 @@
 		}, onSuccess, onError, 3);
 	});
 	var requestbefor = function(index, code) {
+		console.log(code);
 		if(exeparam) {
 			mui.toast('不可重复提交');
 			return false;
@@ -133,11 +147,12 @@
 	}
 
 	var onSuccess = function(data) {
-		exeafter();
+		exeafter();	
 		mui.alert(data.msg, '成功',
 			function() {
 				var datainfo = data.data;
 				tipsinfo.innerText = data.msg;
+				Bluetoothapi.testprint(Bluetoothapi.getMacAddress(),data.msg+"\r\n测试的数据真的好长好长好长\r\n好长跟人家觉得很长很长很长却不一定会影响\r\n\r\n\r\n\r\n\r\n\r\n\n\n\n\n");
 			});
 
 	}
