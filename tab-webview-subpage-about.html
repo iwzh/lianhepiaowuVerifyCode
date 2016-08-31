@@ -60,7 +60,8 @@
 		num = code = '',
 		settings = '',
 		state = ''
-	exeparam = 0;
+	exeparam = 0,
+	isprint=0;
 	var verifyCodeBtn = document.getElementById("verifyCode"),
 		queryCodeBtn = document.getElementById("queryCode");
 
@@ -144,15 +145,27 @@
 			onError('请输入联合票务12位消费编码');
 			return false;
 		}
+		switch(index.getAttribute('id')){
+			case "queryCode":
+			isprint=0;
+			break;
+			default:
+			isprint=1;
+		}
 	}
 
 	var onSuccess = function(data) {
-		exeafter();	
+		exeafter();
+		isprint=1;
+		if(isprint){
+			var printstr=" [ESC 2] 联合票务FS W 2[b]"+"\r\n"+data.msg+"\r\n"+
+			"这就是测试数据， LF 这条测试数据真的很长很长哦！希望可以全部打印出来呦。。  LF";
+			Bluetoothapi.testprint(Bluetoothapi.getMacAddress(),printstr);
+		}
 		mui.alert(data.msg, '成功',
 			function() {
 				var datainfo = data.data;
 				tipsinfo.innerText = data.msg;
-				Bluetoothapi.testprint(Bluetoothapi.getMacAddress(),data.msg+"\r\n测试的数据真的好长好长好长\r\n好长跟人家觉得很长很长很长却不一定会影响\r\n\r\n\r\n\r\n\r\n\r\n\n\n\n\n");
 			});
 
 	}

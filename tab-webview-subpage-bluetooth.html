@@ -279,7 +279,7 @@
 					if(mac_address == device.getAddress()) {
 						console.log('正在执行配对');
 						if(device.createBond()) {
-							console.log("配对成功");
+							console.log("配对成功"+device.getBondState());
 						}
 					}
 				}

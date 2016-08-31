@@ -16,6 +16,7 @@
 			bluetoothSocket = null,
 			BluetoothDevice = null,
 			IntentFilter=null;
+			var agintry=0;
 			
 	//定义 Locker 类
 	var Bluetooth = $.Bluetooth = $.Class.extend({
@@ -26,13 +27,12 @@
 			var self = this;
 			//
 			options = options || {};
-			options.callback = options.callback || options.done ;
 			self.options = options;			
 			self.device = self.options.device || device;			
 			if(self.device==null){			
-				main = self.main = plus.android.runtimeMainActivity();
-				BluetoothAdapter = self.BluetoothAdapter = self.options.BluetoothAdapter || BluetoothAdapter || plus.android.importClass("android.bluetooth.BluetoothAdapter");
-				BAdapter=self.BAdapter = self.options.BAdapter || BAdapter || self.BluetoothAdapter.getDefaultAdapter();	
+				main = self.options.main = self.options.main || plus.android.runtimeMainActivity();
+				BluetoothAdapter = self.options.BluetoothAdapter = self.options.BluetoothAdapter || BluetoothAdapter || plus.android.importClass("android.bluetooth.BluetoothAdapter");
+				BAdapter=self.options.BAdapter = self.options.BAdapter || BAdapter || self.BluetoothAdapter.getDefaultAdapter();	
 				//self.device = self.options.device || device || self.BAdapter.getRemoteDevice(self.mac_address);
 				//plus.android.importClass(self.device);
 			}		
@@ -117,21 +117,6 @@
 			teststr=teststr||"测试打印机\r\n\r\n\r\n\r\n\r\n\r\n这是测试打印的。内容可以忽略";
 			this.print(mac_address,teststr,device,bluetoothSocket);
 		},
-		/*
-		 * 连接蓝牙
-		 */
-		connectedBT:function(bluetoothSocket){
-			if(!bluetoothSocket.isConnected()) {
-				console.log('检测到设备未连接，尝试连接....');
-				bluetoothSocket.connect();
-				if(!bluetoothSocket.isConnected()) {
-					$.toast('设备未连接，重新连接失败，请确保设备开启。');
-				}else{
-					console.log('设备已连接。');
-				}
-			}
-			console.log('设备已连接 bluetoothSocket.isConnected()=' + bluetoothSocket.isConnected());
-		},
 		/**
 		 * 打印
 		 */
@@ -144,41 +129,21 @@
 					return;	
 				}
 			}
-			if(device == null) {
-				main = plus.android.runtimeMainActivity();
-				BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
-				BAdapter = BluetoothAdapter.getDefaultAdapter();
-				device = BAdapter.getRemoteDevice(mac_address);
-				plus.android.importClass(device);
-			}
-			
-			//蓝牙连接或者uuid为空时，需要重新导入蓝牙socket
-			if(bluetoothSocket== null||UUID ==null){					
-				UUID = plus.android.importClass("java.util.UUID");
-				uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-			}
-			
-			bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-			plus.android.importClass(bluetoothSocket);
-
-			self.connectedBT(bluetoothSocket);//检测蓝牙是否连接；
-			
-
+			self.initParam({"mac_address":mac_address},1);
+			bluetoothSocket=self.options.bluetoothSocket;
+			self.connectedBT(bluetoothSocket,mac_address);//检测蓝牙是否连接；
 			if(bluetoothSocket.isConnected()) {
-				/*
-				bluetoothSocket.start();//开启蓝牙socket连接，不开启无法打印
-				bluetoothSocket.accept();//开启蓝牙socket连接，不开启无法打印
-				bluetoothSocket.start();//开启蓝牙socket连接，不开启无法打印
-				*/
 				var outputStream = bluetoothSocket.getOutputStream();
 				plus.android.importClass(outputStream); 
 				var bytes = plus.android.invoke(printstring, 'getBytes', 'gbk');
 				var clearFormat = [0x1b, 0x40]; //复位打印机
 				outputStream.write(clearFormat);
+				
+//				outputStream.write("ESC ! 3");
 				outputStream.write(bytes);
 				outputStream.flush();
 				/*//device = null //清空连接设备 如果持续验票的情况下，不能每次都初始化设备。只需要关闭蓝牙与手机APP的socket即可。无需情况设备*/
-				bluetoothSocket.close(); //必须关闭蓝牙连接否则意外断开的话打印错误
+//				bluetoothSocket.close(); //必须关闭蓝牙连接否则意外断开的话打印错误
 			}else{
 				$.toast("蓝牙未连接，无法打印");
 			}
@@ -222,22 +187,65 @@
 			}
 			return true;
 		},
-		checkIsContacted:function(bluetoothSocket){
-			if(!bluetoothSocket){
-					$.toast('无法连接设备。');
+		initParam:function(options,checkSocket,checkDevice){
+			var self = this;
+			checkSocket=checkSocket||0;
+			checkDevice=checkDevice||0;
+			device = self.options.device = options.device||self.options.device ||device ;			
+			if(self.device==null){
+				main = self.options.main = options.main||self.options.main||main||plus.android.runtimeMainActivity();
+				BluetoothAdapter =self.options.BluetoothAdapter =options.BluetoothAdapter||self.options.BluetoothAdapter ||BluetoothAdapter||plus.android.importClass("android.bluetooth.BluetoothAdapter");
+				BAdapter=self.options.BAdapter=options.BAdapter||self.options.BAdapter || BAdapter || BluetoothAdapter.getDefaultAdapter();
+			}		
+			if(options.mac_address){
+				device =self.options.device= BAdapter.getRemoteDevice(options.mac_address);
+				plus.android.importClass(device);
+			}
+			if(checkDevice){
+				//蓝牙信息	
+				BluetoothDevice=self.options.BluetoothDevice =options.BluetoothDevice||self.options.BluetoothDevice||BluetoothDevice||plus.android.importClass("android.bluetooth.BluetoothDevice");
+			}
+			//蓝牙连接或者uuid为空时，需要重新导入蓝牙socket
+			if(checkSocket){					
+				UUID=self.options.UUID =options.UUID||self.options.UUID||plus.android.importClass("java.util.UUID");
+				uuid=self.options.uuid =options.uuid||self.options.uuid||UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+				bluetoothSocket=self.options.bluetoothSocket = options.bluetoothSocket||self.options.bluetoothSocket||device.createInsecureRfcommSocketToServiceRecord(uuid);
+				plus.android.importClass(bluetoothSocket);
+			}
+			return self;
+		},
+		/*
+		 * 连接蓝牙
+		 */		
+		connectedBT: function(bluetoothSocket,mac_address) {
+			var self = this;
+			if(!bluetoothSocket.isConnected()) {
+				if(agintry>1){
+					console.log('重试两次了，不再尝试');
 					return false;
 				}
-				if(!bluetoothSocket.isConnected()) {
-					console.log('检测到设备未连接，尝试连接....');
+				try {
 					bluetoothSocket.connect();
-					if(!bluetoothSocket.isConnected()) {
-						$.toast('设备未连接，重新连接失败，请确保设备开启。');
-						return false;
-					} else {
-						console.log('设备已连接。');
-					}
+				} catch(e) {
+					console.log('Bluetooth Connect Error!'+e);
+					bluetoothSocket.close();
+					self.initParam({"mac_address":mac_address},1,1);
+					bluetoothSocket =self.options.bluetoothSocket;
+					console.log('设备连接出错了，重新连接');
+					agintry++;
+					bluetoothSocket.connect();					
 				}
-				return true;
+				
+				if(!bluetoothSocket.isConnected()) {
+					$.toast('设备未连接，重新连接失败，请确保设备开启。');
+					return false;
+				} else {
+					console.log('设备已连接。');
+				}
+				console.log('设备已连接 bluetoothSocket.isConnected()=' + bluetoothSocket.isConnected());
+			}
+			agintry=0;
+			return true;
 		},
 		contactBT:function(mac_address){
 			var self=this;
@@ -245,21 +253,8 @@
 					$.toast('请选择蓝牙打印机');
 					return;
 				}
-				if(BAdapter == null) {
-					main = plus.android.runtimeMainActivity();
-					BluetoothAdapter = plus.android.importClass("android.bluetooth.BluetoothAdapter");
-					BAdapter = BluetoothAdapter.getDefaultAdapter();
-				}
-				device = BAdapter.getRemoteDevice(mac_address);
-				plus.android.importClass(device);
-				if(BluetoothDevice==null){
-					//蓝牙信息	
-					BluetoothDevice = plus.android.importClass("android.bluetooth.BluetoothDevice");
-				}
-				var bdevice = new BluetoothDevice();
-				/*for(i in device){
-					console.log(i+':'+device[i]);
-				}*/
+				self.initParam({"mac_address":mac_address},1,1);
+				var bdevice = new BluetoothDevice();			
 				if(device.getBondState()==bdevice.BOND_NONE){
 					//地址一样，执行配对
 					if(mac_address == device.getAddress()){
@@ -268,37 +263,27 @@
 							console.log("配对成功");							
 						}
 					}					
-				}	
-				
-				//蓝牙连接或者uuid为空时，需要重新导入蓝牙socket
-				if(!uuid||UUID ==null){					
-					UUID = plus.android.importClass("java.util.UUID");
-					uuid = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-				}
-				bluetoothSocket = device.createInsecureRfcommSocketToServiceRecord(uuid);
-				plus.android.importClass(bluetoothSocket);
-				self.checkIsContacted(bluetoothSocket);
+				}				
+				self.connectedBT(self.options.bluetoothSocket,mac_address);
 		},
 		/*
 		 * 搜索蓝牙设备,并创建处理HTML蓝牙列表
 		 */
 		seachBT:function(address){
 			var self=this;
-				device=self.device=self.options.device||self.device||device;
-				if(device == null) {
-					main=self.main = plus.android.runtimeMainActivity();
-					BluetoothAdapter=self.BluetoothAdapter = self.options.BluetoothAdapter||self.BluetoothAdapter|| plus.android.importClass("android.bluetooth.BluetoothAdapter");
-					BAdapter=self.BAdapter =self.options.BAdapter||self.BAdapter|| BluetoothAdapter.getDefaultAdapter();
-				}
+			if(address){				
+				self.initParam({"mac_address":address},1,1);
+			}else{
+				self.initParam({});	
+			}
+			
 				//检查蓝牙是否开启
 				self.oepnBluetooth(BAdapter);
-				IntentFilter=self.IntentFilter=self.options.IntentFilter|| self.IntentFilter || plus.android.importClass('android.content.IntentFilter');
-				BluetoothDevice =self.BluetoothDevice= self.options.BluetoothDevice || self.BluetoothDevice||plus.android.importClass("android.bluetooth.BluetoothDevice");
+				IntentFilter=self.options.IntentFilter=self.options.IntentFilter||IntentFilter || plus.android.importClass('android.content.IntentFilter');
 				var filter = new IntentFilter();
 				var bdevice = new BluetoothDevice();
 				var on = un = new Array();
-				var onstr=unstr=null;
-				
+				var onstr=unstr=null;				
 				BAdapter.startDiscovery(); //开启搜索
 				var receiver;
 				receiver = plus.android.implements('io.dcloud.android.content.BroadcastReceiver', {
