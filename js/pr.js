@@ -18,7 +18,7 @@
 			IntentFilter=null;
 			var agintry=0;
 			
-	//定义 Locker 类
+	//定义 Bluetooth 类
 	var Bluetooth = $.Bluetooth = $.Class.extend({
 		/**
 		 * 构造函数
@@ -32,7 +32,7 @@
 			if(self.device==null){			
 				main = self.options.main = self.options.main || plus.android.runtimeMainActivity();
 				BluetoothAdapter = self.options.BluetoothAdapter = self.options.BluetoothAdapter || BluetoothAdapter || plus.android.importClass("android.bluetooth.BluetoothAdapter");
-				BAdapter=self.options.BAdapter = self.options.BAdapter || BAdapter || self.BluetoothAdapter.getDefaultAdapter();	
+				BAdapter=self.options.BAdapter = self.options.BAdapter || BAdapter || BluetoothAdapter.getDefaultAdapter();	
 				//self.device = self.options.device || device || self.BAdapter.getRemoteDevice(self.mac_address);
 				//plus.android.importClass(self.device);
 			}		
@@ -114,7 +114,7 @@
 		 * 测试打印
 		 */
 		testprint:function(mac_address,teststr,device,bluetoothSocket){
-			teststr=teststr||"测试打印机\r\n\r\n\r\n\r\n\r\n\r\n这是测试打印的。内容可以忽略";
+			teststr=teststr||"测试打印机\r\n\r\n\r\n\r\n\r\n\r\n这是测试打印的。内容可以忽略 FF ";
 			this.print(mac_address,teststr,device,bluetoothSocket);
 		},
 		/**
@@ -138,9 +138,17 @@
 				var bytes = plus.android.invoke(printstring, 'getBytes', 'gbk');
 				var clearFormat = [0x1b, 0x40]; //复位打印机
 				outputStream.write(clearFormat);
+
+//				outputStream.write(LF);
+
+//				outputStream.write([0x1b,0x45,1]);//加粗效果
+//				var title=plus.android.invoke("【联合票务】", 'getBytes', 'gbk');
 				
-//				outputStream.write("ESC ! 3");
+//				outputStream.write(title);
+//				outputStream.write([0x1b,0x45,0]);//加粗效果
 				outputStream.write(bytes);
+//				outputStream.write([0x1b,0x64,4]);//多走纸n行
+				outputStream.write([0x1b,0x2a,1,6,0,10,0,122,222,22,54]);//位图模式
 				outputStream.flush();
 				/*//device = null //清空连接设备 如果持续验票的情况下，不能每次都初始化设备。只需要关闭蓝牙与手机APP的socket即可。无需情况设备*/
 //				bluetoothSocket.close(); //必须关闭蓝牙连接否则意外断开的话打印错误
@@ -222,6 +230,10 @@
 			if(!bluetoothSocket.isConnected()) {
 				if(agintry>1){
 					console.log('重试两次了，不再尝试');
+					$.toast("重试多次未成功连接蓝牙打印机，请关闭后重试！");
+					bluetoothSocket=self.options.bluetoothSocket=null;
+					UUID=self.options.UUID=null;
+					uuid=self.options.uuid=null;
 					return false;
 				}
 				try {

@@ -142,6 +142,8 @@
 					var bytes = plus.android.invoke(string, 'getBytes', 'gbk');
 					var clearFormat = [0x1b, 0x40]; //复位打印机
 					outputStream.write(clearFormat);
+					
+					outputStream.write("FF");
 					outputStream.write(bytes);
 					outputStream.flush();
 					//					device = null //清空连接设备 如果持续验票的情况下，不能每次都初始化设备。只需要关闭蓝牙与手机APP的socket即可。无需情况设备

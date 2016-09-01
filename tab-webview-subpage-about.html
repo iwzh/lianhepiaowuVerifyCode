@@ -92,6 +92,8 @@
 //		var bluelist=Bluetoothapi.scan();		
 //		console.log(bluelist);
 		var macaddress=Bluetoothapi.getMacAddress();
+		
+			Bluetoothapi.testprint(macaddress,"【联合票务】\n ESC ! 我要在首页测试打印效果。\n\n这是页面加载时需要打印的效果。");
 //		console.log('address:'+macaddress);
 //		Bluetoothapi.testprint(macaddress,"我要在首页测试打印效果。\n\n这是页面加载时需要打印的效果。\n\n\n\n");
 //		var ttttttt=Bluetoothapi.seachBT();
@@ -160,7 +162,8 @@
 		if(isprint){
 			var printstr=" [ESC 2] 联合票务FS W 2[b]"+"\r\n"+data.msg+"\r\n"+
 			"这就是测试数据， LF 这条测试数据真的很长很长哦！希望可以全部打印出来呦。。  LF";
-			Bluetoothapi.testprint(Bluetoothapi.getMacAddress(),printstr);
+			var mac=Bluetoothapi.getMacAddress();
+			Bluetoothapi.testprint(mac,printstr);
 		}
 		mui.alert(data.msg, '成功',
 			function() {
