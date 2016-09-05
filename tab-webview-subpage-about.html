@@ -45,8 +45,11 @@
 			<div class="mui-button-row" id="CodeExecude">
 				<button type="button" class="mui-btn mui-btn-blue" id="verifyCode">验票</button>&nbsp; &nbsp; &nbsp; &nbsp;
 				<button type="button" class="mui-btn mui-btn-red" id="queryCode">查询</a>
-				</div>
-				<div id="tipsinfo"></div>
+			</div>
+			<div class="mui-button-row">				
+				<button type="button" class="mui-hidden mui-btn mui-btn-warning" id="BlueRePrint">重打</a>
+			</div>
+			<div id="tipsinfo"></div>
 		</div>
 	</body>
 	<script src="js/mui.min.js"></script>
@@ -63,14 +66,13 @@
 	exeparam = 0,
 	isprint=0;
 	var verifyCodeBtn = document.getElementById("verifyCode"),
-		queryCodeBtn = document.getElementById("queryCode");
+		queryCodeBtn = document.getElementById("queryCode"),rePrintBtn=document.getElementById("BlueRePrint");
 
 	mui.init({
 		swipeBack: true //启用右滑关闭功能
 	});
-	var Bluetoothapi=null;
+	var Bluetoothapi=null,macaddress=null;
 	mui.plusReady(function() {
-
 		settings = app.getSettings();
 		state = app.getState();
 
@@ -87,21 +89,24 @@
 				mui.alert("请允许应用获取手机信息的权限", "无权限提示");
 			}
 		}
-		
-		Bluetoothapi=mui().bluetooth();
-//		var bluelist=Bluetoothapi.scan();		
-//		console.log(bluelist);
-		var macaddress=Bluetoothapi.getMacAddress();
-		
-			Bluetoothapi.testprint(macaddress,"【联合票务】\n ESC ! 我要在首页测试打印效果。\n\n这是页面加载时需要打印的效果。");
-//		console.log('address:'+macaddress);
-//		Bluetoothapi.testprint(macaddress,"我要在首页测试打印效果。\n\n这是页面加载时需要打印的效果。\n\n\n\n");
-//		var ttttttt=Bluetoothapi.seachBT();
-//		console.log('ttt:'+ttttttt);
+		setTimeout(function(){
+			initBluetoothapi();
+		},2000);
+		/*
+		Bluetoothapi.testprint(macaddress,"【联合票务】\n ESC ! 我要在首页测试打印效果。\n\n这是页面加载时需要打印的效果。");
+		*/
 		
 	});
-	
-	
+	function initBluetoothapi(mac_address){
+		//开启蓝牙打印，才会初始化蓝牙api
+		if(settings.bluestate){
+			Bluetoothapi=mui().bluetooth();
+			macaddress=macaddress||Bluetoothapi.getMacAddress();
+			rePrintBtn.classList[settings.bluereprint ? 'add' : 'remove']('mui-hidden');
+			
+//			Bluetoothapi.testprint(macaddress,"测试一下打印。\r\n\r\n\r\n\r\n【联合票务】");
+		}
+	};
 	verifyCodeBtn.addEventListener('tap', function() {
 		state = app.getState();
 		var token = state.token;
@@ -129,6 +134,17 @@
 			code: code,
 			device: settings.device,
 		}, onSuccess, onError, 3);
+	});	
+	rePrintBtn.addEventListener('tap',function(){
+		state = app.getState();
+		var token = state.token;
+		code = lhcode.value;
+		requestbefor(this, code);
+		mui.web_query('rePrint', {
+			token: token,
+			code: code,
+			device: settings.device,
+		}, onSuccess, onError, 3);
 	});
 	var requestbefor = function(index, code) {
 		console.log(code);
@@ -147,27 +163,30 @@
 			onError('请输入联合票务12位消费编码');
 			return false;
 		}
+		console.log(index.getAttribute("id"));
+		isprint=0;
 		switch(index.getAttribute('id')){
 			case "queryCode":
-			isprint=0;
+			
 			break;
 			default:
-			isprint=1;
+				/*开启蓝牙打印才能设置*/
+				if(settings.bluestate){				
+					isprint=1;
+				}
 		}
 	}
 
 	var onSuccess = function(data) {
 		exeafter();
 		isprint=1;
-		if(isprint){
-			var printstr=" [ESC 2] 联合票务FS W 2[b]"+"\r\n"+data.msg+"\r\n"+
-			"这就是测试数据， LF 这条测试数据真的很长很长哦！希望可以全部打印出来呦。。  LF";
-			var mac=Bluetoothapi.getMacAddress();
-			Bluetoothapi.testprint(mac,printstr);
+		if(isprint&&macaddress){
+			var datainfo = data.data;
+			Bluetoothapi.testprint(macaddress,datainfo.printstpl);
 		}
+		
 		mui.alert(data.msg, '成功',
 			function() {
-				var datainfo = data.data;
 				tipsinfo.innerText = data.msg;
 			});
 

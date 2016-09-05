@@ -2,7 +2,7 @@
 	var onSuccess = arguments[2] ? arguments[2] : function() {};
 	var onError = arguments[3] ? arguments[3] : function() {};
 	var retry = arguments[4] ? arguments[4] : 3;
-	var test=1;
+	var test=0;
 	func_url = 'http://www.lianhepiaowu.net/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
 	if(test){
 		func_url = 'http://test.lianhepiaowu.com/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
