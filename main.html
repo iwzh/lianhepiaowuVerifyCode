@@ -27,7 +27,7 @@
 				<span class="mui-icon mui-icon-home"></span>
 				<span class="mui-tab-label">验票</span>
 			</a>
-			<a class="mui-tab-item" href="tab-webview-subpage-bluetooth.html">
+			<a id="bluetoothTab" class="mui-tab-item" href="tab-webview-subpage-bluetooth.html" style="display: none;">
 				<span class="mui-icon mui-icon-gear"></span>
 				<span class="mui-tab-label">蓝牙</span>
 			</a>
@@ -37,6 +37,7 @@
 			</a>
 		</nav>
 		<script src="js/mui.min.js"></script>
+		<script src="js/user.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
 			 //mui初始化
 			mui.init();
@@ -47,35 +48,53 @@
 			};
 			var selfcurrentWebview=null;
 			var aniShow = {};
+			 var initBt=0;
 			 //创建子页面，首个选项卡页面显示，其它均隐藏；
-			mui.plusReady(function() {				
-					selfcurrentWebview = plus.webview.currentWebview();
-					for(var i = 0; i < 2; i++) {
-						var temp = {};
-						var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
-						if(i > 0) {
-							sub.hide();
-						} else {
-							temp[subpages[i]] ="true";
-							mui.extend(aniShow,temp);
-						}
-						selfcurrentWebview.append(sub);
+			mui.plusReady(function() {		
+				selfcurrentWebview = plus.webview.currentWebview();
+				for(var i = 0; i < 2; i++) {
+					var temp = {};
+					var sub = plus.webview.create(subpages[i], subpages[i], subpage_style);
+					if(i > 0) {
+						sub.hide();
+					} else {
+						temp[subpages[i]] ="true";
+						mui.extend(aniShow,temp);
 					}
+					selfcurrentWebview.append(sub);
+				}				
+				initBluetoothPage(1);
 			});
 			 //当前激活选项
 			var activeTab = subpages[0];
 			var title = document.getElementById("title");
-			 //选项卡点击事件
+			//初始化蓝牙界面
+			function initBluetoothPage(first) {				
+				var settings = app.getSettings();
+				var bluetoothTab = document.getElementById("bluetoothTab");
+				bluetoothTab.style.display = settings.bluestate ? '' : 'none';
+				
+				first=first||0;				
+				if(first){
+					initBt=settings.bluestate?0:1;
+				}
+				if(settings.bluestate) {
+					//初始化时
+					if(!initBt) {
+						var sub = plus.webview.create(subpages[2], subpages[2], subpage_style);
+						sub.hide();
+						selfcurrentWebview.append(sub);
+						initBt = 1;
+					}else{
+//						plus.webview.show(subpages[2],"fade-in",300);
+					}
+				}
+			};
+			//选项卡点击事件
 			mui('.mui-bar-tab').on('tap', 'a', function(e) {
 				var targetTab = this.getAttribute('href');
 				if (targetTab == activeTab) {
 					return;
-				}
-				//蓝牙
-				if(targetTab=='tab-webview-subpage-bluetooth.html'){
-					var sub = plus.webview.create(subpages[2], subpages[2], subpage_style);
-					sub.hide();
-					selfcurrentWebview.append(sub);
 				}
 				//更换标题
 				title.innerHTML = this.querySelector('.mui-tab-label').innerHTML;
@@ -95,20 +114,13 @@
 				//更改当前活跃的选项卡
 				activeTab = targetTab;
 			});
-			 //自定义事件，模拟点击“首页选项卡”
-//			document.addEventListener('createShortcut', function() {	
-//				 // 最好的兼容性代码应该是下面这样：
-//  			
-//				var defaultTab = document.getElementById("defaultTab");
-//				//模拟首页点击
-//				mui.trigger(defaultTab, 'tap');
-//				//切换选项卡高亮
-//				var current = document.querySelector(".mui-bar-tab>.mui-tab-item.mui-active");
-//				if (defaultTab !== current) {
-//					current.classList.remove('mui-active');
-//					defaultTab.classList.add('mui-active');
-//				}
-//			});
+			 //自定义事件，蓝牙打印开启
+			document.addEventListener('BTtoggle', function() {	
+				console.log('bttoogle:'+initBt);
+				 setTimeout(function(){
+				 	initBluetoothPage();
+				 },300);
+			});
 			
 		</script>
 	</body>

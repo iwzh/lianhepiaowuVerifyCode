@@ -48,7 +48,7 @@
 			</ul>
 		</div>
 		<footer id="footer" class="mui-bar mui-bar-footer">
-			<button class="mui-btn mui-btn-block mui-btn-blue" id='search'>
+			<button class="mui-btn mui-btn-block mui-btn-blue" id='search' disabled="disabled">
                 <span class="mui-icon mui-icon-search"></span>搜索设备
             </button>
 		</footer>
@@ -68,7 +68,8 @@
 				IntentFilter = null;
 
 			var vlist1 = document.getElementById('contactlist'); //注册容器用来显示未配对设备
-			var vlist2 = document.getElementById('nocontactlist'); //注册容器用来显示未配对设备				
+			var vlist2 = document.getElementById('nocontactlist'); //注册容器用来显示未配对设备	
+			
 			//mui初始化
 			mui.init({
 				gestureConfig: {
@@ -81,7 +82,8 @@
 				setTimeout(function(){
 					initBluetoothapi();					
 					scan();
-				},300);
+					document.getElementById('search').disabled = false;
+				},100);
 			});
 			/**获取应用设置*/
 			function getSettings(){
@@ -94,14 +96,16 @@
 				if(settings.bluestate){
 					Bluetoothapi=mui().bluetooth();
 					macaddress=macaddress||Bluetoothapi.getMacAddress();
+					Bluetoothapi.openBluetooth();
 				}else{
-					$.toast("未开启蓝牙打印，此页面隐藏");
+					mui.toast("未开启蓝牙打印，此页面隐藏");
 				}
 			};
 			//获取已配对的蓝牙设备列表
 			function scan() {				
 				var bluelist=Bluetoothapi.getBlueList();
 				if(!bluelist[0]){
+					console.log('i0:'+bluelist[0]);
 					bluelist=Bluetoothapi.scan();
 				}			
 				var ul = vlist1;
@@ -110,7 +114,7 @@
 				var li1 = "";
 				for(var i in bluelist){
 					var d=bluelist[i];
-					li1 += 
+					li1 +=
 					'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-warning">未连接</span></a></li>';
 				}
 				vlist1.innerHTML = li1;
@@ -248,21 +252,23 @@
 					'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-warning">未连接</span></a></li>';
 					console.log(d.id+':'+d.name);
 				}
-				btlist=Bluetoothapi.arrayUnique(btlist);
-				
+				btlist=Bluetoothapi.arrayUnique(btlist);				
 				Bluetoothapi.setBlueList(btlist);
 				
-				for(var f in btsearchlist.un){
-					var b=btsearchlist.un[f];
-					li2 += '<li class="mui-table-view-cell" id="' + b.id + '"><a href="" class="mui-navigate-right">' + b.name + '<span class="mui-badge mui-badge-red">未配对</span></a></li>';
-					console.log(b.id+':'+b.name);
-				}
-					
 				vlist1.innerHTML = li1;
-				vlist2.innerHTML = li2;
 				
-			},false);
-			//address=""搜索蓝牙//address=设备mac地址，自动配对给出mac地址的设备
+				if(btsearchlist.un){
+					for(var f in btsearchlist.un){
+						var b=btsearchlist.un[f];
+						li2 += '<li class="mui-table-view-cell" id="' + b.id + '"><a href="" class="mui-navigate-right">' + b.name + '<span class="mui-badge mui-badge-red">未配对</span></a></li>';
+						console.log(b.id+':'+b.name);
+					}
+					vlist2.innerHTML = li2;
+				}
+			});
+			/*
+			 * 搜索蓝牙
+			 */
 			function searchDevices() {
 				var button1 = document.getElementById('search');
 				button1.disabled = true;

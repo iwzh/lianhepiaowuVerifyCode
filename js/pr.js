@@ -36,7 +36,7 @@
 				//self.device = self.options.device || device || self.BAdapter.getRemoteDevice(self.mac_address);
 				//plus.android.importClass(self.device);
 			}		
-			if(self.oepnBluetooth(self.BAdapter)){
+			if(self.openBluetooth(self.BAdapter)){
 			/*	//搜索蓝牙时候用到
 				if(self.IntentFilter==null){
 					self.IntentFilter = self.options.BluetoothAdapter || plus.android.importClass('android.content.IntentFilter') || self.IntentFilter;	
@@ -170,7 +170,7 @@
 		/*
 		 * 开启蓝牙 
 		 */
-		oepnBluetooth:function(BAdapter){
+		openBluetooth:function(BAdapter){
 			var self=this;
 			BAdapter=self.options.BAdapter || BAdapter;
 			if(!BAdapter.isEnabled()) {
@@ -358,7 +358,7 @@
 				self.initParam({},0,1);	
 			}
 			//检查蓝牙是否开启
-			self.oepnBluetooth(BAdapter);
+			self.openBluetooth(BAdapter);
 			IntentFilter=self.options.IntentFilter=self.options.IntentFilter||IntentFilter || plus.android.importClass('android.content.IntentFilter');
 			BluetoothDevice=self.options.BluetoothDevice=self.options.BluetoothDevice||BluetoothDevice || plus.android.importClass("android.bluetooth.BluetoothDevice");
 			var filter = new IntentFilter();

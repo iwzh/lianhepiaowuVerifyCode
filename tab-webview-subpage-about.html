@@ -91,10 +91,7 @@
 		}
 		setTimeout(function(){
 			initBluetoothapi();
-		},2000);
-		/*
-		Bluetoothapi.testprint(macaddress,"【联合票务】\n ESC ! 我要在首页测试打印效果。\n\n这是页面加载时需要打印的效果。");
-		*/
+		},300);
 		
 	});
 	function initBluetoothapi(mac_address){
@@ -102,9 +99,9 @@
 		if(settings.bluestate){
 			Bluetoothapi=mui().bluetooth();
 			macaddress=macaddress||Bluetoothapi.getMacAddress();
-			rePrintBtn.classList[settings.bluereprint ? 'add' : 'remove']('mui-hidden');
+			Bluetoothapi.openBluetooth();
+			rePrintBtn.classList[settings.bluereprint ? 'remove':'add']('mui-hidden');
 			
-//			Bluetoothapi.testprint(macaddress,"测试一下打印。\r\n\r\n\r\n\r\n【联合票务】");
 		}
 	};
 	verifyCodeBtn.addEventListener('tap', function() {
@@ -181,8 +178,12 @@
 		exeafter();
 		isprint=1;
 		if(isprint&&macaddress){
-			var datainfo = data.data;
-			Bluetoothapi.testprint(macaddress,datainfo.printstpl);
+			var datainfo = data.data.printstpl;
+			var reg=new RegExp("\[br\]","g");
+			var printstr=datainfo.replace(reg,"\r\n");
+			console.log(datainfo);
+			console.log(printstr);
+//			Bluetoothapi.testprint(macaddress,datainfo);
 		}
 		
 		mui.alert(data.msg, '成功',
@@ -195,6 +196,7 @@
 		exeparam = 0;
 		verifyCodeBtn.disabled = false;
 		queryCodeBtn.disabled = false;
+		rePrintBtn.disabled = false;
 	}
 	var onError = function(errcode) {
 		exeafter();

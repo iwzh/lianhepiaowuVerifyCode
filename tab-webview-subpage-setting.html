@@ -443,8 +443,15 @@
 						settings.bluestate = '';
 					}else{
 						settings.bluestate = 1;
+//						$.toast("即将跳转到蓝牙界面，请选择蓝牙打印机。");
 					}					
 					app.setSettings(settings);
+					//setTimeout(function(){
+						//获得主页面的webview
+						var main = plus.webview.currentWebview().parent();
+						//触发主页面的 BTtoggle 事件
+						$.fire(main,'BTtoggle');	
+					//},1000);					
 				}, false);
 				//是否显示重打按钮
 				BlueRePrintBtn.addEventListener('toggle', function(event) {
