@@ -199,4 +199,10 @@
 		user = user || {};
 		localStorage.setItem('$user', JSON.stringify(user));
 	};
+	/**
+	 * 获取salt
+	 **/
+	owner.getSalt = function() {
+		return 'wzh';
+	};
 }(mui, window.app = {}));

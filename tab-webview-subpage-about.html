@@ -22,34 +22,65 @@
 			}
 			.mui-btn{
 				font-size: 1.2em;
-				padding: 6px 1.5em;
+				padding: 0.8rem 1em;
+			}
+			.mui-input-row .mui-input-clear~.mui-icon-clear{
+				font-size: 2rem;
+				right: 0.8rem;				
+			}
+			.mui-center{
+				width: 100%;
+				padding:0 0.5rem;
+				text-align:center;
+			}
+			.mui-numbox{	
+				height: 50px;
+				font-size: 1.5rem;
+				line-height: 1.5rem;
+				width: 98%;	
+			}
+			.mui-input-numbox{
+				font-size: 1.5rem;
+			}
+			.mui-center .mui-input-row {
+				width: 100%;
+			}
+			.mui-center .mui-input-row input{				
+				height:50px;
+				font-size: 1.5rem; 
+				text-align: center;
+				line-height: 1.5rem;
 			}
 		</style>
 	</head>
 
 	<body>
 		<div class="mui-content">
-			<h4>票号</h4>
+			<!--<h4>票号</h4>-->
+			<div class="mui-center">		
 			<div class="mui-input-row">
-				<input id="lhcode" type="number" class="mui-input-clear" style="height: 50px;" placeholder="请输入联合票务12位电子票" value="">
+				<input id="lhcode" type="number" class="mui-input-clear" style="padding:0.3rem;width: 98%;" placeholder="请输入联合票务12位消费码" value="">
 			</div>
-			<h4>数量</h4>
-			<div class="mui-numbox" data-numbox-min='1'>
-				<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
-				<input id="number" class="mui-input-numbox" type="number" value="1" />
-				<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+			</div>
+			<!--<h4>数量</h4>-->
+			<div class="mui-center">				
+				<div class="mui-numbox" data-numbox-min='1' >
+					<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
+					<input id="number" class="mui-input-numbox" type="number" value="1" />
+					<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+				</div>
 			</div>
 			<div class="mui-button-row">
 
 			</div>
 			<div class="mui-button-row" id="CodeExecude">
-				<button type="button" class="mui-btn mui-btn-blue" id="verifyCode">验票</button>&nbsp; &nbsp; &nbsp; &nbsp;
-				<button type="button" class="mui-btn mui-btn-red" id="queryCode">查询</a>
+				<button type="button" class="mui-btn mui-btn-blue" id="verifyCode">验票</button>&nbsp; &nbsp; 
+				<button type="button" class="mui-btn mui-btn-red" id="queryCode">查询</button>&nbsp; &nbsp; 
+				<button type="button" class="mui-btn mui-btn-warning mui-btn-grey" disabled="true" id="BlueRePrint">重打</button>
 			</div>
-			<div class="mui-button-row">				
-				<button type="button" class="mui-hidden mui-btn mui-btn-warning" id="BlueRePrint">重打</a>
+			<div id="tipsinfo" style="height: auto; padding: 0.5rem 1rem;background:#FFFFFF;margin:1rem 0.5rem 0 0.5rem;display: none;">
+				
 			</div>
-			<div id="tipsinfo"></div>
 		</div>
 	</body>
 	<script src="js/mui.min.js"></script>
@@ -62,20 +93,22 @@
 		tipsinfo = document.getElementById("tipsinfo"),
 		num = code = '',
 		settings = '',
-		state = ''
-	exeparam = 0,
-	isprint=0;
-	var verifyCodeBtn = document.getElementById("verifyCode"),
-		queryCodeBtn = document.getElementById("queryCode"),rePrintBtn=document.getElementById("BlueRePrint");
+		state = '',
+		exeparam = 0,
+		isprint = 0;
+	var Bluetoothapi = null
+	var macaddress = null;
+	var testprintconfim = 0;
+	var verifyCodeBtn = document.getElementById("verifyCode");
+	var queryCodeBtn = document.getElementById("queryCode");
+	var rePrintBtn = document.getElementById("BlueRePrint");
 
 	mui.init({
 		swipeBack: true //启用右滑关闭功能
 	});
-	var Bluetoothapi=null,macaddress=null;
 	mui.plusReady(function() {
 		settings = app.getSettings();
 		state = app.getState();
-
 		token = state.token;
 		if(!settings.device) {
 			if(plus.device.uuid) {
@@ -89,62 +122,86 @@
 				mui.alert("请允许应用获取手机信息的权限", "无权限提示");
 			}
 		}
-		setTimeout(function(){
+		setTimeout(function() {
 			initBluetoothapi();
-		},300);
-		
+		}, 300);
+
 	});
-	function initBluetoothapi(mac_address){
-		//开启蓝牙打印，才会初始化蓝牙api
-		if(settings.bluestate){
-			Bluetoothapi=mui().bluetooth();
-			macaddress=macaddress||Bluetoothapi.getMacAddress();
+
+	function initBluetoothapi(mac_address) { //开启蓝牙打印，才会初始化蓝牙api
+		if(settings.bluestate) {
+			Bluetoothapi = mui().bluetooth();
+			//			console.log(Bluetoothapi.options);
+			macaddress = macaddress || Bluetoothapi.getMacAddress();
 			Bluetoothapi.openBluetooth();
-			rePrintBtn.classList[settings.bluereprint ? 'remove':'add']('mui-hidden');
-			
+			rePrintBtn.classList['remove']('mui-btn-grey');
+			rePrintBtn.disabled = false;
+			//			rePrintBtn.classList[settings.bluereprint ? 'remove':'add']('mui-hidden');			
 		}
 	};
+
+	function tipsinfotext(msg) {
+		tipsinfo.style.display = '';
+		tipsinfo.innerText = msg;
+	}
 	verifyCodeBtn.addEventListener('tap', function() {
 		state = app.getState();
 		var token = state.token;
 		code = lhcode.value;
 		num = number.value;
-		requestbefor(this, code);
 		if(num < 1) {
 			mui.toast('数量不可小于1');
 			return false;
 		}
-		mui.web_query('verifyCode', {
-			token: token,
-			code: code,
-			num: num,
-			device: settings.device
-		}, onSuccess, onError, 3);
+		if(requestbefor(this, code)) {
+			if(testprintconfim > 0) {
+				mui.toast('正在处理请求，请稍等。');
+			} else {
+				testprintconfim = 1;
+				mui.web_query('verifyCode', {
+					token: token,
+					code: code,
+					num: num,
+					device: settings.device
+				}, onSuccess, onError, 3);
+			}
+		}
 	});
 	queryCodeBtn.addEventListener('tap', function() {
 		state = app.getState();
 		var token = state.token;
 		code = lhcode.value;
-		requestbefor(this, code);
-		mui.web_query('queryCode', {
-			token: token,
-			code: code,
-			device: settings.device,
-		}, onSuccess, onError, 3);
-	});	
-	rePrintBtn.addEventListener('tap',function(){
+		if(requestbefor(this, code)) {
+			if(testprintconfim > 0) {
+				mui.toast('正在处理请求，请稍等。');
+			} else {
+				testprintconfim = 1;
+				mui.web_query('queryCode', {
+					token: token,
+					code: code,
+					device: settings.device,
+				}, onSuccess, onError, 3);
+			}
+		}
+	});
+	rePrintBtn.addEventListener('tap', function() {
 		state = app.getState();
 		var token = state.token;
 		code = lhcode.value;
-		requestbefor(this, code);
-		mui.web_query('rePrint', {
-			token: token,
-			code: code,
-			device: settings.device,
-		}, onSuccess, onError, 3);
+		if(requestbefor(this, code)) {
+			if(testprintconfim > 0) {
+				mui.toast('正在处理请求，请稍等。');
+			} else {
+				testprintconfim = 1;
+				mui.web_query('rePrint', {
+					token: token,
+					code: code,
+					device: settings.device,
+				}, onSuccess, onError, 3);
+			}
+		}
 	});
 	var requestbefor = function(index, code) {
-		console.log(code);
 		if(exeparam) {
 			mui.toast('不可重复提交');
 			return false;
@@ -160,35 +217,45 @@
 			onError('请输入联合票务12位消费编码');
 			return false;
 		}
-		console.log(index.getAttribute("id"));
-		isprint=0;
-		switch(index.getAttribute('id')){
+		//		console.log(index.getAttribute("id"));
+		isprint = 0;
+		switch(index.getAttribute('id')) {
 			case "queryCode":
-			
-			break;
+
+				break;
 			default:
 				/*开启蓝牙打印才能设置*/
-				if(settings.bluestate){				
-					isprint=1;
+				if(settings.bluestate) {
+					isprint = 1;
 				}
 		}
+		return true;
 	}
 
 	var onSuccess = function(data) {
 		exeafter();
-		isprint=1;
-		if(isprint&&macaddress){
+		if(isprint && macaddress) {
 			var datainfo = data.data.printstpl;
-			var reg=new RegExp("\[br\]","g");
-			var printstr=datainfo.replace(reg,"\r\n");
+			var printstr = datainfo.replace(/\[br\]/g, "\r\n");
+			//			data.msg+="\r\n"+printstr;
 			console.log(datainfo);
 			console.log(printstr);
-//			Bluetoothapi.testprint(macaddress,datainfo);
+			var status = Bluetoothapi.print(macaddress, printstr);
+			if(status) {
+				console.log(status);
+				testprintconfim = 0;
+			} else {
+				setTimeout(function() {
+					testprintconfim = 0;
+				}, 200)
+			}
+		} else {
+			testprintconfim = 0;
 		}
-		
+
 		mui.alert(data.msg, '成功',
 			function() {
-				tipsinfo.innerText = data.msg;
+				tipsinfotext(data.msg);
 			});
 
 	}
@@ -210,8 +277,7 @@
 			default:
 				mui.toast(errcode);
 		}
-
+		tipsinfotext(errcode + "\r\n" + tipsinfo.innerText);
 	}
 </script>
-
 </html>

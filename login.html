@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html class="ui-page-login">
-
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
@@ -148,7 +147,7 @@
 							}
 							
 							//检查 "登录状态/锁屏状态" 开始
-							if(settings.autoLogin && state.token && username && settings.gestures) {
+							if(settings.autoLogin && app.auto_login() && settings.gestures) {
 								$.openWindow({
 									url: 'unlock.html',
 									id: 'unlock',
@@ -209,7 +208,7 @@
 							var pwd_hash;
 
 						function pwdmd5(pwd) {
-							var salt="wzh";
+							var salt=app.getSalt();
 							var md5pwd= md5(pwd);
 							return md5(md5pwd+salt);
 						}
@@ -280,7 +279,7 @@
 						});
 						forgetButton.addEventListener('tap',function(event){
 							var btnArray = ['是','否'];
-							mui.confirm('拨打联合票务热线电话，找回密码？', '是否拨打电弧找回密码', btnArray, function(e) {
+							mui.confirm('拨打联合票务热线电话，找回密码？', '是否拨打电话找回密码', btnArray, function(e) {
 								if (e.index == 1) {
 									mui.toast("取消拨打电话，找回密码");
 								}else{
@@ -291,7 +290,6 @@
 						$.enterfocus('#login-form input', function() {
 							$.trigger(loginButton, 'tap');
 						});
-						autoLoginButton.classList[settings.autoLogin ? 'add' : 'remove']('mui-active');
 						autoLoginButton.addEventListener('toggle', function(event) {
 							setTimeout(function() {
 								var isActive = event.detail.isActive;
@@ -299,6 +297,7 @@
 								app.setSettings(settings);
 							}, 50);
 						}, false);
+						autoLoginButton.classList[settings.autoLogin ? 'add' : 'remove']('mui-active');
 						//
 						var backButtonPress = 0;
 						$.back = function(event) {

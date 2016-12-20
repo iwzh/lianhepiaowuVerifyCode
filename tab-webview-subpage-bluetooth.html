@@ -66,6 +66,7 @@
 				bluetoothSocket = null,
 				BluetoothDevice = null,
 				IntentFilter = null;
+				var testprintconfim=0;
 
 			var vlist1 = document.getElementById('contactlist'); //注册容器用来显示未配对设备
 			var vlist2 = document.getElementById('nocontactlist'); //注册容器用来显示未配对设备	
@@ -83,7 +84,7 @@
 					initBluetoothapi();					
 					scan();
 					document.getElementById('search').disabled = false;
-				},100);
+				},600);
 			});
 			/**获取应用设置*/
 			function getSettings(){
@@ -109,8 +110,7 @@
 					bluelist=Bluetoothapi.scan();
 				}			
 				var ul = vlist1;
-				vlist1.innerHTML = '';
-				
+				vlist1.innerHTML = '';				
 				var li1 = "";
 				for(var i in bluelist){
 					var d=bluelist[i];
@@ -125,8 +125,12 @@
 					mui.toast('请选择蓝牙打印机');
 					return;
 				}
+				var status=Bluetoothapi.testprint();
+				if(status==true){				
+				}else{					
+					mui.toast('无法进行测试打印，请人工确认是否打印成功。');				
+				}
 				set_badge_status(mac_address,3);
-				Bluetoothapi.testprint();
 			}
 			//以配对列表
 			mui('#contactlist').on('longtap', 'li', function() {
@@ -135,8 +139,22 @@
 			});
 			//以配对列表
 			mui('#contactlist').on('tap', 'li', function() {
-				setMacaddress(this.id);
-				print(this.id);
+				setMacaddress(this.id);				
+				if(testprintconfim>0){
+					mui.toast('陛下，您的手速太快了。打印机都反映不过来了。',{duration:300});
+				}else{					
+					testprintconfim=1;
+					var status=print(this.id)
+					if(status){
+						console.log(status);
+						testprintconfim=0;
+					}else{
+						setTimeout(function(){
+							testprintconfim=0;
+						},200)
+					}
+				}
+				
 			});
 			//为蓝牙列表下li增加触摸事件
 			mui('#nocontactlist').on('tap', 'li', function() {
@@ -274,9 +292,7 @@
 				button1.disabled = true;
 				button1.innerHTML = '<span class="mui-icon mui-icon-search"></span>正在搜索请稍候';
 				try{
-					
-					Bluetoothapi.seachBT();	
-					
+					Bluetoothapi.seachBT();					
 				}catch(e){
 					console.log("searchBtError:"+e);
 					mui.toast("正在初始化蓝牙组件，请稍等片刻！");
