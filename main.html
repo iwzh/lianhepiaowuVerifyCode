@@ -74,21 +74,13 @@
 				var settings = app.getSettings();
 				var bluetoothTab = document.getElementById("bluetoothTab");
 				bluetoothTab.style.display = settings.bluestate ? '' : 'none';
-				
-				first=first||0;				
-				if(first){
-					initBt=settings.bluestate?0:1;
-				}
+		
 				if(settings.bluestate) {
-					//初始化时
-					if(!initBt) {
-						var sub = plus.webview.create(subpages[2], subpages[2], subpage_style);
-						sub.hide();
-						selfcurrentWebview.append(sub);
-						initBt = 1;
-					}else{
-//						plus.webview.show(subpages[2],"fade-in",300);
-					}
+					//初始化时	
+					var sub = plus.webview.create(subpages[2], subpages[2], subpage_style);
+					sub.hide();
+					selfcurrentWebview.append(sub);
+//					initBt = 1;				
 				}
 			};
 			//选项卡点击事件
@@ -118,9 +110,9 @@
 			 //自定义事件，蓝牙打印开启
 			document.addEventListener('BTtoggle', function() {	
 				console.log('bttoogle:'+initBt);
-				 setTimeout(function(){
+//				 setTimeout(function(){
 				 	initBluetoothPage();
-				 },300);
+//				 },200);
 			});
 			
 		</script>

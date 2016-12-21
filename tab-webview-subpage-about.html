@@ -37,7 +37,7 @@
 				height: 50px;
 				font-size: 1.5rem;
 				line-height: 1.5rem;
-				width: 98%;	
+				width: 100%;	
 			}
 			.mui-input-numbox{
 				font-size: 1.5rem;
@@ -49,7 +49,8 @@
 				height:50px;
 				font-size: 1.5rem; 
 				text-align: center;
-				line-height: 1.5rem;
+				line-height: 1.8rem;
+				padding:0 0.3rem;
 			}
 		</style>
 	</head>
@@ -59,7 +60,7 @@
 			<!--<h4>票号</h4>-->
 			<div class="mui-center">		
 			<div class="mui-input-row">
-				<input id="lhcode" type="number" class="mui-input-clear" style="padding:0.3rem;width: 98%;" placeholder="请输入联合票务12位消费码" value="">
+				<input id="lhcode" type="number" class="mui-input-clear" placeholder="请输入联合票务12位消费码" value="">
 			</div>
 			</div>
 			<!--<h4>数量</h4>-->
@@ -71,16 +72,13 @@
 				</div>
 			</div>
 			<div class="mui-button-row">
-
 			</div>
 			<div class="mui-button-row" id="CodeExecude">
-				<button type="button" class="mui-btn mui-btn-blue" id="verifyCode">验票</button>&nbsp; &nbsp; 
-				<button type="button" class="mui-btn mui-btn-red" id="queryCode">查询</button>&nbsp; &nbsp; 
-				<button type="button" class="mui-btn mui-btn-warning mui-btn-grey" disabled="true" id="BlueRePrint">重打</button>
+				<button type="button" class="mui-btn mui-btn-blue" data-loading-text = "验券.." data-loading-icon='' id="verifyCode">验票</button>&nbsp; &nbsp; 
+				<button type="button" class="mui-btn mui-btn-red" data-loading-text = "查询.."  data-loading-icon='' id="queryCode">查询</button>&nbsp; &nbsp; 
+				<button type="button" class="mui-btn mui-btn-warning mui-btn-grey" data-loading-text = "重打.." data-loading-icon='' disabled="true" id="BlueRePrint">重打</button>
 			</div>
-			<div id="tipsinfo" style="height: auto; padding: 0.5rem 1rem;background:#FFFFFF;margin:1rem 0.5rem 0 0.5rem;display: none;">
-				
-			</div>
+			<div id="tipsinfo" style="height: auto; padding: 0.5rem 1rem;background:#FFFFFF;margin:1rem 0.5rem 0 0.5rem;display: none;"></div>
 		</div>
 	</body>
 	<script src="js/mui.min.js"></script>
@@ -122,13 +120,13 @@
 				mui.alert("请允许应用获取手机信息的权限", "无权限提示");
 			}
 		}
-		setTimeout(function() {
+//		setTimeout(function() {
 			initBluetoothapi();
-		}, 300);
-
+//		}, 300);
 	});
 
-	function initBluetoothapi(mac_address) { //开启蓝牙打印，才会初始化蓝牙api
+	function initBluetoothapi(mac_address) {
+		//开启蓝牙打印，才会初始化蓝牙api
 		if(settings.bluestate) {
 			Bluetoothapi = mui().bluetooth();
 			//			console.log(Bluetoothapi.options);
@@ -136,14 +134,19 @@
 			Bluetoothapi.openBluetooth();
 			rePrintBtn.classList['remove']('mui-btn-grey');
 			rePrintBtn.disabled = false;
-			//			rePrintBtn.classList[settings.bluereprint ? 'remove':'add']('mui-hidden');			
 		}
 	};
 
 	function tipsinfotext(msg) {
 		tipsinfo.style.display = '';
 		tipsinfo.innerText = msg;
-	}
+	};
+	/*mui('#CodeExecude').on('tap', '.mui-btn', function(e) {		
+            mui(this).button('loading');
+            setTimeout(function() {
+                mui(this).button('reset');
+            }.bind(this), 2000);
+        });*/
 	verifyCodeBtn.addEventListener('tap', function() {
 		state = app.getState();
 		var token = state.token;
@@ -154,17 +157,12 @@
 			return false;
 		}
 		if(requestbefor(this, code)) {
-			if(testprintconfim > 0) {
-				mui.toast('正在处理请求，请稍等。');
-			} else {
-				testprintconfim = 1;
-				mui.web_query('verifyCode', {
-					token: token,
-					code: code,
-					num: num,
-					device: settings.device
-				}, onSuccess, onError, 3);
-			}
+			mui.web_query('verifyCode', {
+				token: token,
+				code: code,
+				num: num,
+				device: settings.device
+			}, onSuccess, onError, 3);
 		}
 	});
 	queryCodeBtn.addEventListener('tap', function() {
@@ -172,16 +170,11 @@
 		var token = state.token;
 		code = lhcode.value;
 		if(requestbefor(this, code)) {
-			if(testprintconfim > 0) {
-				mui.toast('正在处理请求，请稍等。');
-			} else {
-				testprintconfim = 1;
-				mui.web_query('queryCode', {
-					token: token,
-					code: code,
-					device: settings.device,
-				}, onSuccess, onError, 3);
-			}
+			mui.web_query('queryCode', {
+				token: token,
+				code: code,
+				device: settings.device,
+			}, onSuccess, onError, 3);
 		}
 	});
 	rePrintBtn.addEventListener('tap', function() {
@@ -189,26 +182,20 @@
 		var token = state.token;
 		code = lhcode.value;
 		if(requestbefor(this, code)) {
-			if(testprintconfim > 0) {
-				mui.toast('正在处理请求，请稍等。');
-			} else {
-				testprintconfim = 1;
-				mui.web_query('rePrint', {
-					token: token,
-					code: code,
-					device: settings.device,
-				}, onSuccess, onError, 3);
-			}
+			mui.web_query('rePrint', {
+				token: token,
+				code: code,
+				device: settings.device,
+			}, onSuccess, onError, 3);
 		}
 	});
 	var requestbefor = function(index, code) {
 		if(exeparam) {
-			mui.toast('不可重复提交');
+			mui.toast('不可重复提交',{duration:500});
 			return false;
 		} else {
 			exeparam = 1;
 		}
-		index.setAttribute("disabled", true);
 		if(!settings.device) {
 			onError('请允许软件读取设备标识的权限');
 			return false;
@@ -217,7 +204,6 @@
 			onError('请输入联合票务12位消费编码');
 			return false;
 		}
-		//		console.log(index.getAttribute("id"));
 		isprint = 0;
 		switch(index.getAttribute('id')) {
 			case "queryCode":
@@ -229,6 +215,9 @@
 					isprint = 1;
 				}
 		}
+		index.setAttribute("disabled", true);	
+        mui(index).button('loading');
+		queryCodeBtn.disabled = true;
 		return true;
 	}
 
@@ -237,20 +226,9 @@
 		if(isprint && macaddress) {
 			var datainfo = data.data.printstpl;
 			var printstr = datainfo.replace(/\[br\]/g, "\r\n");
-			//			data.msg+="\r\n"+printstr;
 			console.log(datainfo);
 			console.log(printstr);
-			var status = Bluetoothapi.print(macaddress, printstr);
-			if(status) {
-				console.log(status);
-				testprintconfim = 0;
-			} else {
-				setTimeout(function() {
-					testprintconfim = 0;
-				}, 200)
-			}
-		} else {
-			testprintconfim = 0;
+			var status = Bluetoothapi.print(macaddress, printstr);			
 		}
 
 		mui.alert(data.msg, '成功',
@@ -261,23 +239,29 @@
 	}
 	var exeafter = function() {
 		exeparam = 0;
-		verifyCodeBtn.disabled = false;
-		queryCodeBtn.disabled = false;
-		rePrintBtn.disabled = false;
+		var btns=mui('#CodeExecude .mui-btn');
+		btns.each(function(index,btn){
+			btn.disabled=false;		
+            mui(btn).button('reset');
+		});
 	}
 	var onError = function(errcode) {
 		exeafter();
 		switch(errcode) {
 			case 'INCORRECT_PASSWORD':
-				mui.toast('密码不正确');
+				mui.toast('密码不正确',{duration:1000});
 				break;
 			case 'USER_NOT_EXISTS':
-				mui.toast('用户尚未注册');
+				mui.toast('用户尚未注册',{duration:1000});
+				break;
+			case 'FAILED_NETWORK':
+				mui.toast('网络不好，请重试',{duration:1000});
 				break;
 			default:
-				mui.toast(errcode);
+				mui.toast(errcode,{duration:800});
 		}
-		tipsinfotext(errcode + "\r\n" + tipsinfo.innerText);
+		var oldtipsinfoText=tipsinfo.innerText||'';
+		tipsinfotext(errcode + "\r\n" +oldtipsinfoText );
 	}
 </script>
 </html>

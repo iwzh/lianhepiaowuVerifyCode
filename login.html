@@ -72,7 +72,7 @@
 				<ul class="mui-table-view mui-table-view-chevron">
 					<li class="mui-table-view-cell">
 						自动登录
-						<div id="autoLogin" class="mui-switch">
+						<div id="autoLogin" class="mui-switch mui-active">
 							<div class="mui-switch-handle"></div>
 						</div>
 					</li>
@@ -161,9 +161,8 @@
 								return ;
 							} else if(settings.autoLogin && has_login) {
 								toMain();
-							}else if(settings.autoLogin && app.auto_login()) {
-								
-								mui.toast("正在为您自动登录。。。");
+							}else if(settings.autoLogin && app.auto_login()) {								
+								mui.toast("正在为您自动登录。。。",{duration:800});
 								var token = state.token;
 								passwordBox.value=tokenlianhe;
 								var param = {
@@ -277,6 +276,7 @@
 							
 							app.login(loginInfo, onSuccess, onError);
 						});
+						//忘记密码
 						forgetButton.addEventListener('tap',function(event){
 							var btnArray = ['是','否'];
 							mui.confirm('拨打联合票务热线电话，找回密码？', '是否拨打电话找回密码', btnArray, function(e) {
@@ -290,14 +290,20 @@
 						$.enterfocus('#login-form input', function() {
 							$.trigger(loginButton, 'tap');
 						});
+						//自动登录按钮处理
 						autoLoginButton.addEventListener('toggle', function(event) {
 							setTimeout(function() {
 								var isActive = event.detail.isActive;
+								console.log(isActive);
 								settings.autoLogin = isActive;
 								app.setSettings(settings);
-							}, 50);
+							}, 10);
 						}, false);
-						autoLoginButton.classList[settings.autoLogin ? 'add' : 'remove']('mui-active');
+						
+						if(app.username()){
+//							console.log(app.username());
+							autoLoginButton.classList[settings.autoLogin ? 'add' : 'remove']('mui-active');
+						}						
 						//
 						var backButtonPress = 0;
 						$.back = function(event) {

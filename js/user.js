@@ -7,15 +7,7 @@
 	if(test){
 		func_url = 'http://test.lianhepiaowu.com/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
 	}
-	/*
-	 * 
-		for(i in params) {
-			st += i + ':' + params[i]+'; ';
-		}
-		console.log('params:' + st);
-		console.log(func_url);
-	*/
-		
+			
 	mui.ajax(func_url, {
 		data: params,
 		dataType: 'json',
@@ -118,7 +110,7 @@
 		var token = state.token,
 			password = owner.password();
 		if(!username || (!token && !password)) {
-			console.log('auto_logininfo:false;username:'+username+',token:'+token+',password:'+password);
+//			console.log('auto_logininfo:false;username:'+username+',token:'+token+',password:'+password);
 			return false;
 		}
 		return true;

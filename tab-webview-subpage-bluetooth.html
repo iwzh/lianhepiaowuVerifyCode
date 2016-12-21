@@ -80,11 +80,11 @@
 			});
 			mui.plusReady(function() {
 				settings = getSettings();
-				setTimeout(function(){
+//				setTimeout(function(){
 					initBluetoothapi();					
 					scan();
 					document.getElementById('search').disabled = false;
-				},600);
+//				},600);
 			});
 			/**获取应用设置*/
 			function getSettings(){
@@ -151,7 +151,7 @@
 					}else{
 						setTimeout(function(){
 							testprintconfim=0;
-						},200)
+						},100)
 					}
 				}
 				

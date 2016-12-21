@@ -2,4 +2,4 @@
 .git
 .db
 .idea
-
+unpackage/release/*
