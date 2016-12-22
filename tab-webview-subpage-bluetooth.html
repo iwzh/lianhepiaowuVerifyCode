@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 	<head>
 		<meta charset="utf-8">
 		<title>联合票务验票APP</title>
@@ -106,7 +105,7 @@
 			function scan() {				
 				var bluelist=Bluetoothapi.getBlueList();
 				if(!bluelist[0]){
-					console.log('i0:'+bluelist[0]);
+//					console.log('i0:'+bluelist[0]);
 					bluelist=Bluetoothapi.scan();
 				}			
 				var ul = vlist1;
@@ -167,7 +166,7 @@
 
 			function setMacaddress(mac_address) {
 				localStorage.setItem('$bluetoothMacAddress', mac_address);
-			}
+			};
 		
 			//操作设置配对成功，已连接，未配对的html状态
 			function set_badge_status(id, status) {
@@ -214,8 +213,7 @@
 						vlist1.appendChild(child_btaddress);
 
 				}
-			}
-			
+			};		
 			//未配对的设备，此时开始连接
 			function contactBlueDevices(mac_address) {
 				if(!mac_address) {
@@ -230,7 +228,7 @@
 				} else {
 					mui.toast('设备未连接，重新连接失败，请确保设备开启并手动连接。');
 				}
-			}
+			};
 			/*删除已配对设备*/
 			function unsetBlueDevices(mac_address) {
 				if(!mac_address) {
@@ -240,7 +238,7 @@
 				
 				var btname = document.getElementById(mac_address).innerText;
 				var status=Bluetoothapi.removeBlueDevices(mac_address,btname);
-				console.log('status'+status);
+				console.log('status:'+status);
 				if(status){
 					console.log('删除蓝牙返回值为真');					
 					set_badge_status(mac_address, 2);
@@ -303,7 +301,7 @@
 				}
 				
 				vlist1.innerHTML = vlist2.innerHTML = ''; //清空容器vlist2.innerHTML =
-			}
+			};
 		</script>
 	</body>
 

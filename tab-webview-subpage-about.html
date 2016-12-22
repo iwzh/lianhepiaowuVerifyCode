@@ -60,7 +60,8 @@
 			<!--<h4>票号</h4>-->
 			<div class="mui-center">		
 			<div class="mui-input-row">
-				<input id="lhcode" type="number" class="mui-input-clear" placeholder="请输入联合票务12位消费码" value="">
+				<input id="lhcode" type="number" class="mui-input-clear" value="" placeholder="请输入联合票务12位消费码">
+				<!--<input id="lhcode" type="number" class="mui-input-clear" value="326289333421" placeholder="请输入联合票务12位消费码">-->
 			</div>
 			</div>
 			<!--<h4>数量</h4>-->
@@ -219,24 +220,27 @@
         mui(index).button('loading');
 		queryCodeBtn.disabled = true;
 		return true;
-	}
-
+	};
+	/**
+	 *成功后处理的流程 
+	 * @param {Object} data
+	 */
 	var onSuccess = function(data) {
-		exeafter();
 		if(isprint && macaddress) {
 			var datainfo = data.data.printstpl;
-			var printstr = datainfo.replace(/\[br\]/g, "\r\n");
-			console.log(datainfo);
+			var printstr=datainfo.replace(/(\[br\])/g, "\r\n");			
+			console.log(datainfo);			
 			console.log(printstr);
-			var status = Bluetoothapi.print(macaddress, printstr);			
+			var status = Bluetoothapi.print(macaddress, printstr);						
 		}
-
-		mui.alert(data.msg, '成功',
-			function() {
+		/*mui.alert(data.msg, '成功',
+			function() {*/
 				tipsinfotext(data.msg);
-			});
-
-	}
+//			});
+		setTimeout(function(){			
+			exeafter();
+		},1000);
+	};
 	var exeafter = function() {
 		exeparam = 0;
 		var btns=mui('#CodeExecude .mui-btn');
@@ -244,7 +248,7 @@
 			btn.disabled=false;		
             mui(btn).button('reset');
 		});
-	}
+	};
 	var onError = function(errcode) {
 		exeafter();
 		switch(errcode) {
@@ -262,6 +266,6 @@
 		}
 		var oldtipsinfoText=tipsinfo.innerText||'';
 		tipsinfotext(errcode + "\r\n" +oldtipsinfoText );
-	}
+	};
 </script>
 </html>

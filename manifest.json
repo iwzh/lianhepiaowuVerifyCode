@@ -3,7 +3,7 @@
 	"id": "LianheVerifyCode",/*应用的标识，创建应用时自动生成，勿手动修改*/
 	"name": "联合票务",/*应用名称，程序桌面图标名称*/
 	"version": {
-		"name": "1.2.3",/*应用版本名称*/
+		"name": "1.2.4",/*应用版本名称*/
 		"code": "83"
 	},
 	"description": "联合票务的验票客户端，针对景区提供的手机版验票APP，方便合作景区进行景区验票和查询",/*应用描述信息*/
@@ -297,6 +297,11 @@
 	"unpackage":[
 	  "css/mui.css",
 	  "js/mui.js",
+	  "js/pr - 副本 (3).js",
+	  "js/pr - 副本 (2).js",
+	  "js/pr - 副本.js",
+	  "js/pr -可用.js",
+	  "js/pr - 可用2.js",
 	  "README.md"
 	]
 }
