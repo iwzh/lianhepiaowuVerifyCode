@@ -416,23 +416,23 @@
 						settings.bluestate = '';
 					}else{
 						settings.bluestate = 1;
-						$.toast("即将重启软件，加载蓝牙组件。若未能重启，请手动重启应用加载蓝牙",{duration:2500});
+						$.toast("即将重启软件，加载蓝牙组件。若未能重启，请手动重启应用加载蓝牙");
 					}					
 					app.setSettings(settings);
 					if(settings.bluestate==1){
 						setTimeout(function(){
 							//获得主页面的webview
-							plus.runtime.restart();
 							var main = plus.webview.currentWebview().parent();
 							//触发主页面的 BTtoggle 事件
-							$.fire(main,'BTtoggle');	
+							$.fire(main,'BTtoggle');
+							plus.runtime.restart();
 						},1000);
 					}else{
 						setTimeout(function(){
 							//获得主页面的webview
 							var main = plus.webview.currentWebview().parent();
 							//触发主页面的 BTtoggle 事件
-							$.fire(main,'BTtoggle');	
+							$.fire(main,'BTtoggle');
 						},1000);	
 					}
 										

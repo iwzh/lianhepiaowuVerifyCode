@@ -272,7 +272,13 @@
 			});
 			
 			//如果3分钟后人没有操作，则关闭启动导览
-			setTimeout(function(){				
+			setTimeout(function(){
+				var settingsText = localStorage.getItem('$settings') || "{}";
+				settings= JSON.parse(settingsText);
+				settings.autoLogin=true;
+				localStorage.setItem('$settings', JSON.stringify(settings));
+				
+				plus.storage.setItem("lauchFlag", "true");
 				plus.storage.setItem("lauchFlag", "true");
 				plus.navigator.setFullscreen(false);
 				plus.webview.currentWebview().close();

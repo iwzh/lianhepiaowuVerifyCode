@@ -480,28 +480,37 @@
 						$.fire(firepage, 'done', eventData);
 					} else {
 						var BleDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+						var blename=BleDevice.getName();
+						var bleAddress= BleDevice.getAddress();
+						var bleAliasname=BleDevice.getAliasName();
+						var item = {
+							"id": bleAddress,
+							"name": blename
+						};
+								
+						/*
+						var name='';
+						var functioninfo='';
+						for(var i in BleDevice) {
+							name+=' ## '+i;
+							//functioninfo+="\n***"+BleDevice[i];
+						}
+						console.log(name);
+						*/
 						//判断是否配对
 						if(BleDevice.getBondState() == bdevice.BOND_NONE) {
 							//判断防止重复添加
-							if(BleDevice.getName() != unstr) {
-								unstr = BleDevice.getName();
-								//console.log('未配对蓝牙设备：' + unstr + '    ' + BleDevice.getAddress());
-								var unitem = {
-									"id": BleDevice.getAddress(),
-									"name": unstr
-								};
-								un.push(unitem);
+							if(blename != unstr) {
+								unstr = blename;
+								console.log('未配对蓝牙设备：' + blename + '    ' + bleAddress);
+								un.push(item);
 							}
 						} else {
 							//判断防止重复添加
-							if(onstr != BleDevice.getName()) {
-								onstr = BleDevice.getName();
-								//console.log("已配对蓝牙设备：" + onstr + '    ' + BleDevice.getAddress());
-								var onitem = {
-									"id": BleDevice.getAddress(),
-									"name": onstr
-								};
-								on.push(onitem);
+							if(onstr != blename) {
+								onstr = blename;
+								console.log("已配对蓝牙设备：" + blename + '    ' + bleAddress);								
+								on.push(item);
 							}
 						}
 					}
