@@ -92,10 +92,10 @@
 							if(app.has_login()){								
 								toMain();
 							}else{
-								var username = app.username();
+								var user = app.getUser();
 								var token = state.token;
 								var param = {
-									'username': username,
+									'username': user.name,
 									'token': token,
 									'device': settings.device
 								};
@@ -136,7 +136,8 @@
 								default:
 									errcode=errcode.msg||errcode;
 									mui.toast(errcode);
-									app.clear();
+									app.clear();							
+								toMain();
 							}
 						}
 						

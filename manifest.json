@@ -3,8 +3,8 @@
 	"id": "LianheVerifyCode",/*应用的标识，创建应用时自动生成，勿手动修改*/
 	"name": "联合票务验票端",/*应用名称，程序桌面图标名称*/
 	"version": {
-		"name": "1.2.5",/*应用版本名称*/
-		"code": "83"
+		"name": "2.0.2",/*应用版本名称*/
+		"code": "86"
 	},
 	"description": "联合票务的验票客户端，针对景区提供的手机版验票APP，方便合作景区进行景区验票和查询",/*应用描述信息*/
 	"icons": {
@@ -51,7 +51,7 @@
         "Webview":{},
         "NativeUI":{},
         "Navigator":{},
-        "NativeObj":{}
+        "NativeObj":{},"Camera":{},"Barcode":{}
 	},
 	"plus": {
 		"splashscreen": {
@@ -74,7 +74,7 @@
 				"keystore": "",/*Android应用打包使用的密钥库文件*/
 				"password": "",/*Android应用打包使用密钥库中证书的密码*/
 				"aliasname": "",/*Android应用打包使用密钥库中证书的别名*/
-				"permissions": ["<uses-permission android:name=\"android.permission.VIBRATE\"/>","<uses-permission android:name=\"android.permission.BLUETOOTH_PRIVILEGED\"/>","<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>","<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>","<uses-permission android:name=\"com.android.launcher.permission.UNINSTALL_SHORTCUT\"/>","<uses-permission android:name=\"android.permission.BLUETOOTH\"/>","<uses-permission android:name=\"com.android.launcher.permission.INSTALL_SHORTCUT\"/>","<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>","<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\"/>","<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>","<uses-permission android:name=\"android.permission.CALL_PHONE\"/>"]
+				"permissions": ["<uses-permission android:name=\"com.android.launcher.permission.INSTALL_SHORTCUT\"/>","<uses-permission android:name=\"android.permission.READ_PHONE_STATE\"/>","<uses-permission android:name=\"android.permission.VIBRATE\"/>","<uses-permission android:name=\"android.permission.BLUETOOTH_PRIVILEGED\"/>","<uses-permission android:name=\"android.permission.BLUETOOTH_ADMIN\"/>","<uses-permission android:name=\"android.permission.WAKE_LOCK\"/>","<uses-permission android:name=\"android.permission.FLASHLIGHT\"/>","<uses-permission android:name=\"android.permission.CALL_PHONE\"/>","<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>","<uses-feature android:name=\"android.hardware.camera.autofocus\"/>","<uses-feature android:name=\"android.hardware.camera\"/>","<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>","<uses-permission android:name=\"com.android.launcher.permission.UNINSTALL_SHORTCUT\"/>","<uses-permission android:name=\"android.permission.BLUETOOTH\"/>","<uses-permission android:name=\"android.permission.CAMERA\"/>"]
 			},
 			"orientation": ["portrait-primary", "portrait-secondary"],/*应用支持的方向，portrait-primary：竖屏正方向；portrait-secondary：竖屏反方向；landscape-primary：横屏正方向；landscape-secondary：横屏反方向*/
 			"icons": {
@@ -109,7 +109,7 @@
 					"ldpi": "unpackage/res/icons/48x48.png", /*大屏程序图标，分辨率：48x48*/
 					"hdpi": "unpackage/res/icons/72x72.png", /*高分屏程序图标，分辨率：72x72*/
 					"xhdpi": "unpackage/res/icons/96x96.png",/*720P高分屏程序图标，分辨率：96x96*/
-					"xxhdpi": "unpackage/res/icons/144x144.png"
+					"xxhdpi": "unpackage/res/icons/144x144.png","xxxhdpi":"unpackage/res/icons/180x180.png"
 				}
 			},
 			"splashscreen": {
@@ -141,158 +141,202 @@
 		}
 	},
 	"dependencies":{
-	  "pages": {
-	    "index.html": {
-	      "href": "index.html",
-	      "resources": [
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "fonts/mui.ttf",
-	        "js/app.js",
-	        "tabbar.html",
-	        "js/update.js",
-	        "js/user.js"
-	      ],
-	      "priority": 0,
-	      "refer": [
-	        "tab-webview-main.html",
-	        "template.html",
-	        "login.html"
-	      ]
-	    },
-	    "tab-webview-main.html": {
-	      "resources": [
-	        "tab-webview-subpage-about.html",
-	        "fonts/mui.ttf"
-	      ],
-	      "refer": [
-	        "tab-webview-subpage-setting.html",
-	        "tab-webview-subpage-chat.html",
-	        "tab-webview-subpage-contact.html"
-	      ],
-	      "priority": 0
-	    },
-	    "tabbar.html": {
-	      "resources": [
-	        "fonts/mui.ttf",
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "js/md5.min.js",
-	        "js/app.js",
-	        "js/user.js"
-	      ],
-	      "refer": [
-	        "login.html",
-	        "template.html"
-	      ],
-	      "priority": 0
-	    },
-	    "login.html": {
-	      "resources": [
-	        "js/mui.enterfocus.js",
-	        "js/user.js",
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "js/md5.min.js",
-	        "fonts/mui.ttf",
-	        "js/pr.js"
-	      ],
-	      "refer": [
-	        "main.html",
-	        "unlock.html",
-	        "guide.html"
-	      ],
-	      "priority": 0
-	    },
-	    "main.html": {
-	      "resources": [
-	        "tab-webview-subpage-about.html",
-	        "fonts/mui.ttf",
-	        "js/user.js",
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "tab-webview-subpage-bluetooth.html",
-	        "js/pr.js"
-	      ],
-	      "refer": [
-	        "tab-webview-subpage-setting.html",
-	        "login.html",
-	        "tab-webview-subpage-bluetooth.html",
-	        "tab-webview-subpage-about.html"
-	      ],
-	      "priority": 0
-	    },
-	    "tab-webview-subpage-setting.html": {
-	      "resources": [
-	        "js/mui.min.js",
-	        "fonts/mui.ttf",
-	        "css/mui.min.css",
-	        "js/user.js",
-	        "js/mui.view.js",
-	        "js/mui.locker.js",
-	        "images/qrcode.png",
-	        "images/icon.png"
-	      ],
-	      "refer": [
-	        "login.html"
-	      ],
-	      "priority": 0
-	    },
-	    "tab-webview-subpage-about.html": {
-	      "resources": [
-	        "js/user.js",
-	        "js/mui.min.js",
-	        "css/mui.min.css",
-	        "fonts/mui.ttf",
-	        "js/pr.js"
-	      ],
-	      "refer": [],
-	      "priority": 0
-	    },
-	    "unlock.html": {
-	      "resources": [
-	        "js/mui.locker.js",
-	        "css/mui.min.css",
-	        "fonts/mui.ttf",
-	        "js/mui.min.js",
-	        "js/user.js"
-	      ],
-	      "refer": [
-	        "login.html",
-	        "main.html"
-	      ],
-	      "priority": 0
-	    },
-	    "guide.html": {
-	      "href": "guide.html",
-	      "resources": [
-	        "css/mui.min.css",
-	        "fonts/mui.ttf",
-	        "js/mui.min.js"
-	      ],
-	      "priority": 2,
-	      "refer": []
-	    },
-	    "tab-webview-subpage-bluetooth.html": {
-	      "resources": [
-	        "js/mui.min.js",
-	        "fonts/mui.ttf",
-	        "css/mui.min.css",
-	        "js/pr.js"
-	      ],
-	      "refer": [
-	        "tab-webview-subpage-bluetooth.html"
-	      ],
-	      "priority": 0
-	    }
-	  },
-	  "idle": {
-	    "resources": [
-	      "js/mui.js",
-	      "css/mui.css",
-	      "README.md"
-	    ]
-	  }
+		"pages": {
+			"index.html": {
+				"href": "index.html",
+				"resources": [
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/app.js",
+					"tabbar.html",
+					"js/update.js",
+					"js/user.js"
+				],
+				"priority": 0,
+				"refer": [
+					"tab-webview-main.html",
+					"template.html",
+					"login.html"
+				]
+			},
+			"tab-webview-main.html": {
+				"resources": [
+					"tab-webview-subpage-about.html",
+					"fonts/mui.ttf"
+				],
+				"refer": [
+					"tab-webview-subpage-setting.html",
+					"tab-webview-subpage-chat.html",
+					"tab-webview-subpage-contact.html"
+				],
+				"priority": 0
+			},
+			"tabbar.html": {
+				"resources": [
+					"fonts/mui.ttf",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"js/md5.min.js",
+					"js/app.js",
+					"js/user.js"
+				],
+				"refer": [
+					"login.html",
+					"template.html"
+				],
+				"priority": 0
+			},
+			"login.html": {
+				"resources": [
+					"js/mui.enterfocus.js",
+					"js/user.js",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"js/md5.min.js",
+					"fonts/mui.ttf",
+					"js/pr.js"
+				],
+				"refer": [
+					"main.html",
+					"unlock.html",
+					"guide.html"
+				],
+				"priority": 0
+			},
+			"main.html": {
+				"resources": [
+					"tab-webview-subpage-about.html",
+					"fonts/mui.ttf",
+					"js/user.js",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"tab-webview-subpage-bluetooth.html",
+					"js/pr.js",
+					"subpage-setting.html",
+					"subpage-verify-code.html"
+				],
+				"refer": [
+					"tab-webview-subpage-setting.html",
+					"login.html",
+					"subpage-bluetooth.html"
+				],
+				"priority": 0
+			},
+			"tab-webview-subpage-setting.html": {
+				"resources": [
+					"js/mui.min.js",
+					"fonts/mui.ttf",
+					"css/mui.min.css",
+					"js/user.js",
+					"js/mui.view.js",
+					"js/mui.locker.js",
+					"images/qrcode.png",
+					"images/icon.png"
+				],
+				"refer": [
+					"login.html"
+				],
+				"priority": 0
+			},
+			"tab-webview-subpage-about.html": {
+				"resources": [
+					"js/user.js",
+					"js/mui.min.js",
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/pr.js",
+					"js/common.js"
+				],
+				"refer": [
+					"barcode_scan2.html"
+				],
+				"priority": 0
+			},
+			"unlock.html": {
+				"resources": [
+					"js/mui.locker.js",
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/mui.min.js",
+					"js/user.js"
+				],
+				"refer": [
+					"login.html",
+					"main.html"
+				],
+				"priority": 0
+			},
+			"guide.html": {
+				"href": "guide.html",
+				"resources": [
+					"css/mui.min.css",
+					"fonts/mui.ttf",
+					"js/mui.min.js"
+				],
+				"priority": 2,
+				"refer": []
+			},
+			"tab-webview-subpage-bluetooth.html": {
+				"resources": [
+					"js/mui.min.js",
+					"fonts/mui.ttf",
+					"css/mui.min.css",
+					"js/pr.js"
+				],
+				"refer": [
+					"tab-webview-subpage-bluetooth.html"
+				],
+				"priority": 0
+			},
+			"barcode_scan2.html": {
+				"resources": [
+					"js/common.js"
+				],
+				"refer": [],
+				"priority": 0
+			},
+			"subpage-verify-code.html": {
+				"resources": [
+					"js/common.js",
+					"js/pr.js",
+					"js/user.js",
+					"js/mui.min.js",
+					"fonts/mui.ttf",
+					"css/mui.min.css"
+				],
+				"refer": [
+					"barcode_scan2.html"
+				],
+				"priority": 0
+			},
+			"subpage-setting.html": {
+				"resources": [
+					"js/mui.locker.js",
+					"js/mui.view.js",
+					"js/user.js",
+					"js/mui.min.js",
+					"fonts/mui.ttf",
+					"css/mui.min.css"
+				],
+				"refer": [],
+				"priority": 0
+			},
+			"subpage-bluetooth.html": {
+				"resources": [
+					"js/pr.js"
+				],
+				"refer": [],
+				"priority": 0
+			}
+		},
+		"idle": {
+			"resources": [
+				"js/mui.js",
+				"css/mui.css",
+				"README.md"
+			]
+		}
 	},"fullscreen":true,
 	"unpackage":[
 	  "css/mui.css",

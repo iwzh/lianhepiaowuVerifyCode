@@ -72,7 +72,7 @@
 				<ul class="mui-table-view mui-table-view-chevron">
 					<li class="mui-table-view-cell">
 						自动登录
-						<div id="autoLogin" class="mui-switch mui-active">
+						<div id="autoLogin" class="mui-switch">
 							<div class="mui-switch-handle"></div>
 						</div>
 					</li>
@@ -90,237 +90,233 @@
 		<script src="js/md5.min.js" type="text/javascript" charset="utf-8"></script>
 		<script src="js/user.js"></script>
 		<script>
-			(function($, doc) {
-			var subWebview=null,template=null,toMain=null, settings='',state='';
-						var accountBox = doc.getElementById('account');
-						var passwordBox = doc.getElementById('password');
-					$.init({
-						statusBarBackground: '#f7f7f7'
+	(function($, doc) {
+		var subWebview = null,
+			template = null,
+			toMain = null,
+			settings = '',
+			state = '';
+		var accountBox = doc.getElementById('account');
+		var passwordBox = doc.getElementById('password');
+
+		//检查 "登录状态/锁屏状态" 结束
+		var loginButton = doc.getElementById('login');
+		var autoLoginButton = doc.getElementById("autoLogin");
+		var forgetButton = doc.getElementById("forgetPassword");
+		var tipsinfo = doc.getElementById('tipsinfo');
+		var exeparam = 0;
+		var pwd_hash;
+		var tokenlianhe;
+		
+		$.init({
+			statusBarBackground: '#f7f7f7'
+		});
+		$.plusReady(function() {
+			plus.screen.lockOrientation("portrait-primary");
+			var mainPage = $.preload({
+				"id": 'main',
+				"url": 'main.html'
+			});
+			var toMain = function() {
+				$.fire(mainPage, 'show', null);
+				setTimeout(function() {
+					$.openWindow({
+						id: 'main',
+						show: {
+							aniShow: 'pop-in'
+						},
+						waiting: {
+							autoShow: true
+						}
 					});
-					$.plusReady(function() {
-						plus.screen.lockOrientation("portrait-primary");
-//						plus.storage.removeItem("lauchFlag");
-						var mainPage = $.preload({
-								"id": 'main',
-							"url": 'main.html'
-						});
-						var toMain = function() {
-							$.fire(mainPage, 'show', null);
-							setTimeout(function() {
-								$.openWindow({
-									id: 'main',
-									show: {
-										aniShow: 'pop-in'
-									},
-									waiting: {
-										autoShow: true
-									}
-								});
-							}, 10);			
+				}, 20);
+			};
+			//读取本地存储，检查是否为首次启动
+			var showGuide = plus.storage.getItem("lauchFlag");
+			showGuide = 1;
+			if(!showGuide) {
+				//显示启动导航
+				mui.openWindow({
+					id: 'guide',
+					url: 'guide.html',
+					show: {
+						aniShow: 'none'
+					},
+					waiting: {
+						autoShow: false
+					}
+				});
+				return false;
+			}
+				//有值，说明已经显示过了，无需显示；
+				//登录配置
+				settings = app.getSettings();
+
+				//关闭splash页面；
+				plus.navigator.closeSplashscreen();
+				plus.navigator.setFullscreen(false);
+
+				if(!settings.device) {
+					if(plus.device.uuid) {
+						settings.device = {
+							"uuid": plus.device.uuid,
+							"model": plus.device.model,
+							"imei": plus.device.imei
 						};
+						app.setSettings(settings);
+					} else {
+						mui.alert("请允许应用获取手机信息的权限", "无权限提示");
+					}
+				}
 
-						//读取本地存储，检查是否为首次启动
-						var showGuide = plus.storage.getItem("lauchFlag");
-						
-						if(showGuide){
-							//有值，说明已经显示过了，无需显示；
-							//登录配置
-							settings = app.getSettings();
-						
-							//关闭splash页面；
-							plus.navigator.closeSplashscreen();
-							plus.navigator.setFullscreen(false);
-							
-							if(!settings.device){
-								if(plus.device.uuid){
-									settings.device={"uuid":plus.device.uuid,"model":plus.device.model,"imei":plus.device.imei};
-									app.setSettings(settings);	
-								}else{
-									mui.alert("请允许应用获取手机信息的权限","无权限提示");
-								}
+				autoLoginButton.classList[settings.autoLogin ? 'add' : 'remove']('mui-active');
+				
+				var user = app.getUser();
+				tokenlianhe = user.password;
+				user.name && (accountBox.value = user.name);
+				if(settings.autoLogin) {
+					//检查 "登录状态/锁屏状态" 开始
+					if(app.auto_login() && settings.gestures) {
+						$.openWindow({
+							url: 'unlock.html',
+							id: 'unlock',
+							show: {
+								aniShow: 'pop-in'
+							},
+							waiting: {
+								autoShow: false
 							}
-							var has_login=app.has_login();
-							var username = app.username();
-							var tokenlianhe=app.password();
-							if(username){
-								accountBox.value=username;
-							}
-							
-							//检查 "登录状态/锁屏状态" 开始
-							if(settings.autoLogin && app.auto_login() && settings.gestures) {
-								$.openWindow({
-									url: 'unlock.html',
-									id: 'unlock',
-									show: {
-										aniShow: 'pop-in'
-									},
-									waiting: {
-										autoShow: false
-									}
-								});
-								return ;
-							} else if(settings.autoLogin && has_login) {
-								toMain();
-							}else if(settings.autoLogin && app.auto_login()) {								
-								mui.toast("正在为您自动登录。。。",{duration:800});
-								var token = state.token;
-								passwordBox.value=tokenlianhe;
-								var param = {
-									'username': username,
-									'device': settings.device
-								};
-								if(!token&&!tokenlianhe){
-									mui.toast("登录错误，请手动登录");
-								}else{
-									if(token){
-										param.token=token;
-									}
-									if(tokenlianhe){
-										param.tokenlianhe=tokenlianhe;
-									}
-									mui.web_query('autoLogin', param, onSuccess, onError);	
-								}							
-							} else {
-								app.clear() 
-							}
-							
-						}else{
-							//显示启动导航
-							mui.openWindow({
-								id:'guide',
-								url:'guide.html',
-								show:{
-									aniShow:'none'
-								},
-								waiting:{
-									autoShow:false
-								}
-							});
-						}		
-						
-						//检查 "登录状态/锁屏状态" 结束
-						var loginButton = doc.getElementById('login');
-						var autoLoginButton = doc.getElementById("autoLogin");
-						var forgetButton = doc.getElementById("forgetPassword");
-						var tipsinfo=doc.getElementById('tipsinfo');
-						var exeparam=0;
-							var pwd_hash;
-
-						function pwdmd5(pwd) {
-							var salt=app.getSalt();
-							var md5pwd= md5(pwd);
-							return md5(md5pwd+salt);
-						}
-
-						function onSuccess(data) {
-							loginButton.disabled=false;
-							exeparam = 0;
-							var datainfo = data.data;
-							var tokentime=(datainfo.expire_time * 1000) + new Date().getTime();
-							state=app.getState();
-							state.token=datainfo.access_token;							
-							state.tokentime=datainfo.tokentime;
-							app.setState(state);
-							
-							setTimeout(function(){
-								toMain();	
-							},100);
-							
-						}
-
-						function onError(errcode) {
-							loginButton.disabled=false;
-							exeparam = 0;
-							switch(errcode) {
-								case 'INCORRECT_PASSWORD':
-									mui.toast('密码不正确');
-									break;
-								case 'FAILED_NETWORK':
-									mui.toast('网络出错，请重试');
-									break;
-								case 'USERNAME_SHORT':
-									mui.toast('账号最短为 3 个字符');
-									break;
-								case 'PASSWORD_SHORT':
-									mui.toast('密码过短，请修改');
-									break;
-								default:
-									errcode=errcode.msg||errcode;
-									mui.toast(errcode);
-									app.clear();
-							}
-						}
-						//处理登录
-						loginButton.addEventListener('tap', function(event) {
-							if(exeparam){
-								mui.toast("正在登录请稍后。。");
-								return false;
-							}else{
-								exeparam=1;
-							}
-							if(passwordBox.value===tokenlianhe){
-								pwd_hash=tokenlianhe;
-							}else{
-								pwd_hash=pwdmd5(passwordBox.value);
-							}
-							console.log()
-							var loginInfo = {
-								username: accountBox.value,
-								password: pwd_hash
-							};
-							
-							app.username(accountBox.value);							
-							app.password(pwd_hash);
-														
-							this.setAttribute('disabled',"");
-							
-							app.login(loginInfo, onSuccess, onError);
 						});
-						//忘记密码
-						forgetButton.addEventListener('tap',function(event){
-							var btnArray = ['是','否'];
-							mui.confirm('拨打联合票务热线电话，找回密码？', '是否拨打电话找回密码', btnArray, function(e) {
-								if (e.index == 1) {
-									mui.toast("取消拨打电话，找回密码");
-								}else{
-									plus.device.dial("01082830719");
-								}
-							})
-						})
-						$.enterfocus('#login-form input', function() {
-							$.trigger(loginButton, 'tap');
+						return;
+					} else if(app.has_login()) {
+						toMain();
+					} else if(app.auto_login()) {
+						mui.toast("正在为您自动登录。。。", {
+							duration: 800
 						});
-						//自动登录按钮处理
-						autoLoginButton.addEventListener('toggle', function(event) {
-							setTimeout(function() {
-								var isActive = event.detail.isActive;
-//								console.log(isActive);
-								settings.autoLogin = isActive;
-								app.setSettings(settings);
-							}, 10);
-						}, false);
-						
-						if(app.username()){
-//							console.log(app.username());
-							autoLoginButton.classList[settings.autoLogin ? 'add' : 'remove']('mui-active');
-						}						
-						//
-						var backButtonPress = 0;
-						$.back = function(event) {
-							backButtonPress++;
-							if(backButtonPress > 1) {
-								plus.runtime.quit();
-							} else {
-								plus.nativeUI.toast('再按一次退出应用');
-							}
-							setTimeout(function() {
-								backButtonPress = 0;
-							}, 1000);
+						var token = state.token;
+						passwordBox.value = tokenlianhe;
+						var param = {
+							'username': user.name,
+							'device': settings.device
+						};
+						if(!token && !tokenlianhe) {
+							mui.toast("登录错误，请手动登录");
 							return false;
-						};
-					});
-				}(mui, document));
-		</script>
-	</body>
+						}
+						token&&(param.token = token);
+						tokenlianhe&&(param.tokenlianhe = tokenlianhe);						
+						mui.web_query('autoLogin', param, onSuccess, onError);					
+					}
+				} else {
+					app.clear();
+				}
+			//处理登录
+			loginButton.addEventListener('tap', function(event) {
+				if(exeparam) {
+					mui.toast("正在登录请稍后。。");
+					return false;
+				} 
+				exeparam = 1;
+				if(passwordBox.value === tokenlianhe) {
+					pwd_hash = tokenlianhe;
+				} else {
+					pwd_hash = pwdmd5(passwordBox.value);
+				}
+				var loginInfo = {
+					username: accountBox.value,
+					password: pwd_hash
+				};
+				app.setUser({"name":accountBox.value,"password":pwd_hash});
+				this.setAttribute('disabled', "");
+				app.login(loginInfo, onSuccess, onError);
+			});
+			//忘记密码
+			forgetButton.addEventListener('tap', function(event) {
+				var btnArray = ['是', '否'];
+				mui.confirm('拨打联合票务热线电话，找回密码？', '是否拨打电话找回密码', btnArray, function(e) {
+					if(e.index == 1) {
+						mui.toast("取消拨打电话，找回密码");
+					} else {
+						plus.device.dial("01082830719");
+					}
+				})
+			});
+			//自动登录按钮处理
+			autoLoginButton.addEventListener('toggle', function(event) {
+				setTimeout(function() {
+					var isActive = event.detail.isActive;
+					settings.autoLogin = isActive;
+					app.setSettings(settings);
+				}, 50);
+			}, false);
+			
+			$.enterfocus('#login-form input', function() {
+				$.trigger(loginButton, 'tap');
+			});
+
+			var backButtonPress = 0;
+			$.back = function(event) {
+				backButtonPress++;
+				if (backButtonPress > 1) {
+					plus.runtime.quit();
+				} else {
+					plus.nativeUI.toast('再按一次退出应用');
+				}
+				setTimeout(function() {
+					backButtonPress = 0;
+				}, 1000);
+				return false;
+			};
+				
+			function pwdmd5(pwd) {
+				var salt = app.getSalt();
+				var md5pwd = md5(pwd);
+				return md5(md5pwd + salt);
+			}
+			var exeafter = function() {
+				loginButton.disabled = false;
+				exeparam = 0;			
+			};
+			function onSuccess(data) {				
+				exeafter();
+				var datainfo = data.data;
+				var tokentime = (datainfo.expire_time * 1000) + new Date().getTime();
+				state = app.getState();
+				state.token = datainfo.access_token;
+				state.tokentime = datainfo.tokentime;
+				app.setState(state);
+
+				setTimeout(function() {
+					toMain();
+				}, 200);
+
+			}
+
+			function onError(errcode) {				
+				exeafter();
+				switch(errcode) {
+					case 'INCORRECT_PASSWORD':
+						mui.toast('密码不正确');
+						break;
+					case 'FAILED_NETWORK':
+						mui.toast('网络出错，请重试');
+						break;
+					case 'USERNAME_SHORT':
+						mui.toast('账号最短为 3 个字符');
+						break;
+					case 'PASSWORD_SHORT':
+						mui.toast('密码过短，请修改');
+						break;
+					default:
+						errcode = errcode.msg || errcode;
+						mui.toast(errcode);
+						app.clear();
+				}
+			}
+		});
+	}(mui, document));
+</script>
+</body>
 
 </html>

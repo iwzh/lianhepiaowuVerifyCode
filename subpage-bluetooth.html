@@ -89,9 +89,9 @@
 			function getSettings(){
 				var settingsText = localStorage.getItem('$settings') || "{}";
 				return JSON.parse(settingsText);
-			}
+			};
 			/*初始化蓝牙*/
-			function initBluetoothapi(mac_address){
+			function initBluetoothapi(){
 				//开启蓝牙打印，才会初始化蓝牙api
 				if(settings.bluestate){
 					Bluetoothapi=mui().bluetooth();
@@ -102,22 +102,27 @@
 				}
 			};
 			//获取已配对的蓝牙设备列表
-			function scan() {				
-				var bluelist=Bluetoothapi.getBlueList();
-				if(!bluelist[0]){
-//					console.log('i0:'+bluelist[0]);
-					bluelist=Bluetoothapi.scan();
-				}			
+			function scan() {
+				var bluelist = Bluetoothapi.getBlueList();
+				if(!bluelist[0]) {
+					//					console.log('i0:'+bluelist[0]);
+					bluelist = Bluetoothapi.scan();
+				}
 				var ul = vlist1;
-				vlist1.innerHTML = '';				
+				vlist1.innerHTML = '';
 				var li1 = "";
-				for(var i in bluelist){
-					var d=bluelist[i];
-					li1 +=
-					'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-warning">未连接</span></a></li>';
+				for(var i in bluelist) {
+					var d = bluelist[i];
+					if(macaddress == d.id) {
+						li1 +=
+							'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-success">已连接</span></a></li>';
+					} else {
+						li1 +=
+							'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-warning">未连接</span></a></li>';
+					}
 				}
 				vlist1.innerHTML = li1;
-			}
+			};
 			//mac_address:打印机的mac地址
 			function print(mac_address) {
 				if(!mac_address) {

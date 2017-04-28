@@ -12,7 +12,7 @@
 		data: params,
 		dataType: 'json',
 		type: 'post',
-		timeout: 3000,
+		timeout: 4000,
 		success: function(data) {			
 			if(data.status) {
 				onSuccess(data);
@@ -21,78 +21,54 @@
 			}
 		},
 		error: function(xhr, type, errorThrown) {
-			retry--;
-			if(retry > 0) return mui.web_query(func_url, params, onSuccess, onError, retry);
-			onError('FAILED_NETWORK');
+//			retry--;
+//			if(retry > 0) return mui.web_query(func_url, params, onSuccess, onError, retry);
+			onError('网络信号不好，请点击查询验票结果');
 		}
 	})
 };
 (function($, owner) {
 
-	owner.login = function(loginInfo, onSuccess, onError) {
-			var settings = owner.getSettings();
-			if(owner.auto_login()) {
-				var state = owner.getState();
-				var username = owner.username();
-				var token = state.token,
-					tokenlianhe = owner.password();
-				var param = {
-					'username': username,
-					'token': token,
-					'tokenlianhe': tokenlianhe,
-					'device': settings.device
-				};
-				$.web_query('autoLogin', param, onSuccess, onError);
-			} else {
-				loginInfo = loginInfo || {};
-				loginInfo.username = loginInfo.username || '';
-				loginInfo.password = loginInfo.password || '';
-				if(loginInfo.username.length < 3) {
-					return onError('USERNAME_SHORT');
-				}
-				if(loginInfo.password.length < 4) {
-					return onError('PASSWORD_SHORT');
-				}
-				var param = {
-					'username': loginInfo.username,
-					'tokenlianhe': loginInfo.password,
-					'device': settings.device
-				};
-				$.web_query('autoLogin', param, onSuccess, onError);
+	owner.login = function (loginInfo, onSuccess, onError) {
+		var settings = owner.getSettings();
+		var param = {'device': settings.device};
+		if (owner.auto_login()) {
+			var state = owner.getState();
+			var user = owner.getUser();
+			var token = state.token;
+			param.username = user.name;
+			param.token = token;
+			param.tokenlianhe = user.password;
+			$.web_query('autoLogin', param, onSuccess, onError);
+		} else {
+			loginInfo = loginInfo || {};
+			loginInfo.username = loginInfo.username || '';
+			loginInfo.password = loginInfo.password || '';
+			if (loginInfo.username.length < 3) {
+				return onError('USERNAME_SHORT');
 			}
+			if (loginInfo.password.length < 4) {
+				return onError('PASSWORD_SHORT');
+			}
+			param.username = loginInfo.username;
+			param.tokenlianhe = loginInfo.password;
+			$.web_query('autoLogin', param, onSuccess, onError);
 		}
+	};
 		//清除登录信息
 	owner.clear = function() {
 		owner.setState({});
-		owner.password('');
+		var user=owner.getUser({});
+		user.password=null;
+		owner.setUser(user);
 //		plus.storage.removeItem('password');
-	}
-	//登录用户名
-	owner.username = function(username) {
-			if(username) {
-				plus.storage.setItem('username', username);
-			} else if(username === '') {
-				plus.storage.removeItem('username');
-				return;
-			}
-			return plus.storage.getItem('username');
-		}
-		//登录密码
-	owner.password = function(password) {
-		if(password) {
-			plus.storage.setItem('password', password);	
-		} else if(password === '') {
-			plus.storage.removeItem('password');
-			return;
-		}
-		return plus.storage.getItem('password');
-		
-	}
+	};
 
 	//检查是否已登录
 	owner.has_login = function() {
 		var state = owner.getState();
-		var username = owner.username();
+		var user = owner.getUser();
+		var username=user.name;
 		var token = state.token;
 		var tokentime = state.tokentime;
 		var timestarp = new Date().getTime();		
@@ -101,20 +77,24 @@
 			return false;
 		}
 		return true;
-	}
+	};
 	
 	//检查是否包含自动登录的信息
 	owner.auto_login = function(username) {
-		username = username || owner.username();
+		var password=null;
+		if(!username){
+			var user = owner.getUser();
+			username=user.name;
+			password=user.password;
+		}
 		var state = owner.getState();
-		var token = state.token,
-			password = owner.password();
+		var token = state.token;
 		if(!username || (!token && !password)) {
 //			console.log('auto_logininfo:false;username:'+username+',token:'+token+',password:'+password);
 			return false;
 		}
 		return true;
-	}
+	};
 	owner.loginSucc = function(data) {
 		if(arguments.length == 0) {
 			return 'owner.loginSucc';
@@ -126,7 +106,7 @@
 			state.tokentime = tokentime;
 			return true;
 		}
-	}
+	};
 	owner.loginErr = function(errorcode) {
 		if(arguments.length == 0) {
 			return 'owner.loginErr';
@@ -142,7 +122,7 @@
 			}
 			return false;
 		}
-	}
+	};
 
 	/**
 	 * 获取应用本地配置
@@ -150,7 +130,7 @@
 	owner.setSettings = function(settings) {
 		settings = settings || {};
 		localStorage.setItem('$settings', JSON.stringify(settings));
-	}
+	};
 
 	/**
 	 * 设置应用本地配置
@@ -158,7 +138,7 @@
 	owner.getSettings = function() {
 		var settingsText = localStorage.getItem('$settings') || "{}";
 		return JSON.parse(settingsText);
-	}
+	};
 
 	/**
 	 * 获取当前状态

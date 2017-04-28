@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>联合票务验票APP</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="css/mui.min.css">
+		<style>
+			html,
+			body {
+				background-color: #efeff4;
+			}
+			
+			.title {
+				margin: 20px 15px 10px;
+				color: #6d6d72;
+				font-size: 15px;
+			}
+			
+			.mui-btn {
+				font-size: 1.2em;
+				padding: 0.8rem 1em;
+			}
+			
+			.mui-input-row .mui-input-clear~.mui-icon-clear {
+				font-size: 2rem;
+				right: 0.8rem;
+			}
+			
+			.mui-center {
+				width: 100%;
+				padding: 0 0.5rem;
+				text-align: center;
+			}
+			
+			.mui-numbox {
+				height: 50px;
+				font-size: 1.5rem;
+				line-height: 1.5rem;
+				width: 100%;
+			}
+			
+			.mui-input-numbox {
+				font-size: 1.5rem;
+			}
+			
+			.mui-center .mui-input-row {
+				width: 100%;
+			}
+			
+			.mui-center .mui-input-row input {
+				height: 50px;
+				font-size: 1.5rem;
+				text-align: center;
+				line-height: 1.8rem;
+				padding: 0 0.3rem;
+			}
+			
+			span.mui-icon.mui-icon-camera {
+				font-size: 40px;
+				position: absolute;
+				z-index: 1;
+				width: 48px;
+				height: 48px;
+				line-height: 48px;
+				text-align: center;
+				color: #999;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="mui-content">
+			<!--<h4>票号</h4>-->
+			<div class="mui-center">
+				<div class="mui-input-row">
+					<span class="mui-icon mui-icon-camera" onclick="clicked('barcode_scan2.html',true,true)"></span>
+					<input id="lhcode" type="number" class="mui-input-clear" value="" placeholder="    输入联合票务12位消费码">
+					<!--<input id="lhcode" type="number" class="mui-input-clear" value="326289333421" placeholder="请输入联合票务12位消费码">-->
+				</div>
+			</div>
+			<!--<h4>数量</h4>-->
+			<div class="mui-center">
+				<div class="mui-numbox" data-numbox-min='1'>
+					<button class="mui-btn mui-btn-numbox-minus" type="button">-</button>
+					<input id="number" class="mui-input-numbox" type="number" value="1" />
+					<button class="mui-btn mui-btn-numbox-plus" type="button">+</button>
+				</div>
+			</div>
+			<div class="mui-button-row">
+			</div>
+			<div class="mui-button-row" id="CodeExecude">
+				<button type="button" class="mui-btn mui-btn-blue" data-loading-text="验券.." data-loading-icon='' id="verifyCode">验票</button>&nbsp; &nbsp;
+				<button type="button" class="mui-btn mui-btn-red" data-loading-text="查询.." data-loading-icon='' id="queryCode">查询</button>&nbsp; &nbsp;
+				<button type="button" class="mui-btn mui-btn-warning mui-btn-grey" data-loading-text="重打.." data-loading-icon='' disabled="true" id="BlueRePrint">重打</button>
+			</div>
+			<div id="tipsinfo" style="height: auto; padding: 0.5rem 1rem;background:#FFFFFF;margin:1rem 0.5rem 0 0.5rem;display: none;"></div>
+		</div>
+	</body>
+	<script src="js/mui.min.js"></script>
+	<script src="js/user.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/pr.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/common.js" type="text/javascript" charset="utf-8"></script>
+	<script>
+		//主列表点击事件
+		var lhcode = document.getElementById('lhcode'),
+			number = document.getElementById('number'),
+			tipsinfo = document.getElementById("tipsinfo"),
+			num = code = '',
+			settings = '',
+			state = '',
+			exeparam = 0,
+			isprint = 0;
+		var Bluetoothapi = null
+		var macaddress = null;
+		var testprintconfim = 0;
+		var verifyCodeBtn = document.getElementById("verifyCode");
+		var queryCodeBtn = document.getElementById("queryCode");
+		var rePrintBtn = document.getElementById("BlueRePrint");
+
+		mui.init({
+			swipeBack: true //启用右滑关闭功能
+		});
+		mui.plusReady(function() {
+			settings = app.getSettings();
+			state = app.getState();
+			token = state.token;
+			if(!settings.device) {
+				if(plus.device.uuid) {
+					settings.device = {
+						"uuid": plus.device.uuid,
+						"model": plus.device.model,
+						"imei": plus.device.imei
+					};
+					app.setSettings(settings);
+				} else {
+					mui.alert("请允许应用获取手机信息的权限", "无权限提示");
+				}
+			}
+
+			if(settings.bluestate) {
+				//		setTimeout(function() {
+				initBluetoothapi();
+				//		}, 300);
+			}
+		});
+
+			function initBluetoothapi(mac_address) {
+				//开启蓝牙打印，才会初始化蓝牙api
+				Bluetoothapi = mui().bluetooth();
+				//			console.log(Bluetoothapi.options);
+				macaddress = macaddress || Bluetoothapi.getMacAddress();
+				Bluetoothapi.openBluetooth();
+				rePrintBtn.classList['remove']('mui-btn-grey');
+				rePrintBtn.disabled = false;
+			};
+
+			function tipsinfotext(msg) {
+				tipsinfo.style.display = '';
+				tipsinfo.innerText = msg;
+			};
+			/*mui('#CodeExecude').on('tap', '.mui-btn', function(e) {		
+            mui(this).button('loading');
+            setTimeout(function() {
+                mui(this).button('reset');
+            }.bind(this), 2000);
+        });*/
+			verifyCodeBtn.addEventListener('tap', function() {
+				state = app.getState();
+				var token = state.token;
+				code = lhcode.value;
+				num = number.value;
+				if(num < 1) {
+					mui.toast('数量不可小于1');
+					return false;
+				}
+				if(requestbefor(this, code)) {
+					mui.web_query('verifyCode', {
+						token: token,
+						code: code,
+						num: num,
+						device: settings.device
+					}, onSuccess, onError, 3);
+				}
+			});
+			queryCodeBtn.addEventListener('tap', function() {
+				state = app.getState();
+				var token = state.token;
+				code = lhcode.value;
+				if(requestbefor(this, code)) {
+					mui.web_query('queryCode', {
+						token: token,
+						code: code,
+						device: settings.device,
+					}, onSuccess, onError, 3);
+				}
+			});
+			rePrintBtn.addEventListener('tap', function() {
+				state = app.getState();
+				var token = state.token;
+				code = lhcode.value;
+				if(requestbefor(this, code)) {
+					mui.web_query('rePrint', {
+						token: token,
+						code: code,
+						device: settings.device,
+					}, onSuccess, onError, 3);
+				}
+			});
+			var scaned = function(t, r, f) {
+				console.log(t + '码，识别结果如下：' + r);
+				var n = Number(r); 
+				if (!isNaN(n)) {
+					lhcode.value=n;
+				}else{
+					var oldtipsinfoText = tipsinfo.innerText || '';
+					tipsinfotext(t + '码识别出不是正确的消费券号格式，无法自动输入。识别结果如下：' + r + "\r\n" + oldtipsinfoText);
+				}
+			};
+			var requestbefor = function(index, code) {
+				if(exeparam) {
+					mui.toast('不可重复提交', {
+						duration: 500
+					});
+					return false;
+				} else {
+					exeparam = 1;
+				}
+				if(!settings.device) {
+					onError('请允许软件读取设备标识的权限');
+					return false;
+				}
+				if((code.length < 12) || (code.length > 12)) {
+					onError('请输入联合票务12位消费编码');
+					return false;
+				}
+				isprint = 0;
+				switch(index.getAttribute('id')) {
+					case "queryCode":
+
+						break;
+					default:
+						/*开启蓝牙打印才能设置*/
+						if(settings.bluestate) {
+							isprint = 1;
+						}
+				}
+				index.setAttribute("disabled", true);
+				mui(index).button('loading');
+				queryCodeBtn.disabled = true;
+				return true;
+			};/**
+		 *成功后处理的流程 
+		 * @param {Object} data
+		 */
+		var onSuccess = function(data) {
+			if(isprint && macaddress) {
+				var datainfo = data.data.printstpl;
+				var printstr = datainfo.replace(/(\[br\])/g, "\r\n");
+				console.log(datainfo);
+				console.log(printstr);
+				var status = Bluetoothapi.print(macaddress, printstr);
+			}
+			/*mui.alert(data.msg, '成功',
+				function() {*/
+			tipsinfotext(data.msg);
+			//			});
+			setTimeout(function() {
+				exeafter();
+			}, 1000);
+		};
+		var exeafter = function() {
+			exeparam = 0;
+			var btns = mui('#CodeExecude .mui-btn');
+			btns.each(function(index, btn) {
+				btn.disabled = false;
+				mui(btn).button('reset');
+			});
+			if(!settings.bluestate){
+				rePrintBtn.disabled = true;
+			}
+		};
+		var onError = function(errcode) {
+			exeafter();
+			switch(errcode) {
+				case 'INCORRECT_PASSWORD':
+					mui.toast('密码不正确', {
+						duration: 1000
+					});
+					break;
+				case 'USER_NOT_EXISTS':
+					mui.toast('用户尚未注册', {
+						duration: 1000
+					});
+					break;
+				case 'FAILED_NETWORK':
+					mui.toast('网络不好，请重试', {
+						duration: 1000
+					});
+					break;
+				default:
+					mui.toast(errcode, {
+						duration: 800
+					});
+			}
+			var oldtipsinfoText = tipsinfo.innerText || '';
+			tipsinfotext(errcode + "\r\n" + oldtipsinfoText);
+		};			
+</script>
+
+</html>
