@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 	<head>
 		<meta charset="utf-8">
 		<title>联合票务验票APP</title>
@@ -50,12 +51,18 @@
 			<button class="mui-btn mui-btn-block mui-btn-blue" id='search' disabled="disabled">
                 <span class="mui-icon mui-icon-search"></span>搜索设备
             </button>
+			<!--<button class="mui-btn mui-btn-success" id='searched' disabled="disabled">
+                <span class="mui-icon mui-icon-search"></span>已配对设备
+            </button>-->
+
 		</footer>
-		
+
 		<script src="js/pr.js" type="text/javascript" charset="utf-8"></script>
 		<script type="text/javascript" charset="utf-8">
-			var settings = '',Bluetoothapi=null,macaddress=null;
-			
+			var settings = '',
+				Bluetoothapi = null,
+				macaddress = null;
+
 			var device = null,
 				BAdapter = null,
 				BluetoothAdapter = null,
@@ -65,49 +72,48 @@
 				bluetoothSocket = null,
 				BluetoothDevice = null,
 				IntentFilter = null;
-				var testprintconfim=0;
+			var testprintconfim = 0;
 
-			var vlist1 = document.getElementById('contactlist'); //注册容器用来显示未配对设备
-			var vlist2 = document.getElementById('nocontactlist'); //注册容器用来显示未配对设备	
-			
-			//mui初始化
+			var vlist1 = document.getElementById('contactlist');
+			/*注册容器用来显示未配对设备*/
+			var vlist2 = document.getElementById('nocontactlist');
+			/*注册容器用来显示未配对设备*/
+
 			mui.init({
 				gestureConfig: {
-					longtap: true, //默认为false
-					swipeBack: true //启用右滑关闭功能
+					longtap: true,
+					/*默认为false*/
+					swipeBack: true
+					/*启用右滑关闭功能*/
 				}
 			});
 			mui.plusReady(function() {
 				settings = getSettings();
-//				setTimeout(function(){
-					initBluetoothapi();					
-					scan();
-					document.getElementById('search').disabled = false;
-//				},600);
+				/*setTimeout(function(){*/
+				initBluetoothapi();
+				scan();
+				document.getElementById('search').disabled = false;
+				/*},600);*/
 			});
 			/**获取应用设置*/
-			function getSettings(){
+			function getSettings() {
 				var settingsText = localStorage.getItem('$settings') || "{}";
 				return JSON.parse(settingsText);
 			};
 			/*初始化蓝牙*/
-			function initBluetoothapi(){
-				//开启蓝牙打印，才会初始化蓝牙api
-				if(settings.bluestate){
-					Bluetoothapi=mui().bluetooth();
-					macaddress=macaddress||Bluetoothapi.getMacAddress();
+			function initBluetoothapi() {
+				/*开启蓝牙打印，才会初始化蓝牙api*/
+				if(settings.bluestate) {
+					Bluetoothapi = mui().bluetooth();
+					macaddress = macaddress || Bluetoothapi.getMacAddress();
 					Bluetoothapi.openBluetooth();
-				}else{
+				} else {
 					mui.toast("未开启蓝牙打印，此页面隐藏");
 				}
 			};
-			//获取已配对的蓝牙设备列表
+			/*获取已配对的蓝牙设备列表*/
 			function scan() {
-				var bluelist = Bluetoothapi.getBlueList();
-				if(!bluelist[0]) {
-					//					console.log('i0:'+bluelist[0]);
-					bluelist = Bluetoothapi.scan();
-				}
+				var bluelist = Bluetoothapi.scan();
 				var ul = vlist1;
 				vlist1.innerHTML = '';
 				var li1 = "";
@@ -123,46 +129,62 @@
 				}
 				vlist1.innerHTML = li1;
 			};
-			//mac_address:打印机的mac地址
+			/*mac_address:打印机的mac地址*/
 			function print(mac_address) {
 				if(!mac_address) {
 					mui.toast('请选择蓝牙打印机');
 					return;
 				}
-				var status=Bluetoothapi.testprint();
-				if(status==true){				
-				}else{					
-					mui.toast('无法进行测试打印，请人工确认是否打印成功。');				
+				var status = Bluetoothapi.testprint();
+				if(status == true) {} else {
+					mui.toast('无法进行测试打印，请人工确认是否打印成功。');
 				}
-				set_badge_status(mac_address,3);
+				set_badge_status(mac_address, 3);
 			}
-			//以配对列表
+			/*已配对列表-长摁*/
 			mui('#contactlist').on('longtap', 'li', function() {
 				console.log('长摁，准备删除');
-				unsetBlueDevices(this.id);
-			});
-			//以配对列表
-			mui('#contactlist').on('tap', 'li', function() {
-				setMacaddress(this.id);				
-				if(testprintconfim>0){
-					mui.toast('陛下，您的手速太快了。打印机都反映不过来了。',{duration:300});
-				}else{					
-					testprintconfim=1;
-					var status=print(this.id)
-					if(status){
-						console.log(status);
-						testprintconfim=0;
-					}else{
-						setTimeout(function(){
-							testprintconfim=0;
-						},100)
+				var thismacdress = this.id;
+				var btname = document.getElementById(thismacdress).innerText;
+				mui.confirm('是否删除已配对的设备：' + btname + '？', '删除设备', ['刪除', '取消'], function(e) {
+					if(e.index == 0) {
+						unsetBlueDevices(thismacdress);
+					} else {
+						mui.toast('取消');
 					}
-				}
-				
+				});
 			});
-			//为蓝牙列表下li增加触摸事件
-			mui('#nocontactlist').on('tap', 'li', function() {
-				contactBlueDevices(this.id);
+			/*已配对列表，点击触发打印*/
+			mui('#contactlist').on('tap', 'li', function() {
+				var thismacdress = this.id;
+				setMacaddress(thismacdress);
+				if(testprintconfim > 0) {
+					mui.toast('陛下，您的手速太快了。打印机都反映不过来了。', {
+						duration: 300
+					});
+				} else {
+					testprintconfim = 1;
+					var btnArray = ['测试打印', '取消'];
+					mui.confirm('设置默认打印机成功，是否测试打印？', '提示', btnArray,
+						function(e) {
+							if(e.index == 0) {
+								var status = print(thismacdress)
+								if(status) {
+									testprintconfim = 0;
+								} else {
+									setTimeout(function() {
+										testprintconfim = 0;
+									}, 100);
+								}
+							} else {
+								testprintconfim = 0;
+							}
+						});
+				}
+			});
+			/*未配对蓝牙列表下li增加触摸事件*/
+			mui('#nocontactlist').on('tap', 'li',function() {
+					contactBlueDevices(this.id);
 			});
 
 			document.getElementById("search").addEventListener('tap', function() {
@@ -172,8 +194,8 @@
 			function setMacaddress(mac_address) {
 				localStorage.setItem('$bluetoothMacAddress', mac_address);
 			};
-		
-			//操作设置配对成功，已连接，未配对的html状态
+
+			/*操作设置配对成功，已连接，未配对的html状态.*/
 			function set_badge_status(id, status) {
 				if(!id) {
 					mui.toast('请选择蓝牙设备');
@@ -182,7 +204,7 @@
 				var child_btaddress = document.getElementById(id);
 				var span = child_btaddress.getElementsByClassName('mui-badge');
 				status = status || 1;
-				//1:未配对->已连接2:已配对->未配对3:已配对->已连接，4：未配对->已配对
+				/*1:未配对->已连接2:已配对->未配对3:已配对->已连接，4：未配对->已配对*/
 				switch(status) {
 					case 1:
 					case 3:
@@ -192,9 +214,9 @@
 							span[0].classList['remove']('mui-badge-warning');
 							span[0].classList['remove']('mui-badge-red');
 						}
-						if(status==1){
+						if(status == 1) {
 							vlist2.removeChild(child_btaddress);
-							vlist1.appendChild(child_btaddress);	
+							vlist1.appendChild(child_btaddress);
 						}
 						break;
 					case 2:
@@ -216,73 +238,81 @@
 						}
 						vlist2.removeChild(child_btaddress);
 						vlist1.appendChild(child_btaddress);
-
 				}
-			};		
-			//未配对的设备，此时开始连接
+			};
+			/*未配对的设备，此时开始连接*/
 			function contactBlueDevices(mac_address) {
+				var status = false;				
 				if(!mac_address) {
 					mui.toast('请选择蓝牙打印机');
-					return;
+					return status;
 				}
-				Bluetoothapi.contactBT(mac_address);
-				bluetoothSocket=Bluetoothapi.options.bluetoothSocket;
-				if(bluetoothSocket.isConnected()) {
+				status = Bluetoothapi.contactBT(mac_address);
+				if(status) {
 					set_badge_status(mac_address);
-					Bluetoothapi.confirm(mac_address);
+					mui.confirm('蓝牙已连接成功，是否测试打印？', '测试打印', ['打印', '取消'], function(e) {
+							if(e.index == 0) {
+								Bluetoothapi.testprint(mac_address);
+							} else {
+								mui.toast('配对成功');
+							}
+						});				
 				} else {
-					mui.toast('设备未连接，重新连接失败，请确保设备开启并手动连接。');
+					mui.toast('配对未成功');
 				}
 			};
 			/*删除已配对设备*/
 			function unsetBlueDevices(mac_address) {
 				if(!mac_address) {
 					mui.toast('请选择蓝牙打印机');
+					return false;
+				}
+				var status = false;
+				status = Bluetoothapi.removeBlueDevices(mac_address);
+				console.log('status:' + status);
+				if(status) {
+					console.log('删除蓝牙返回值为真');
+					set_badge_status(mac_address, 2);
 					return;
 				}
-				
-				var btname = document.getElementById(mac_address).innerText;
-				var status=Bluetoothapi.removeBlueDevices(mac_address,btname);
-				console.log('status:'+status);
-				if(status){
-					console.log('删除蓝牙返回值为真');					
-					set_badge_status(mac_address, 2);
-				}
 			};
-//			创建自定义时间回调监听
-			document.addEventListener("done",function(event){
-				
+			/*创建自定义时间回调监听*/
+			document.addEventListener("done", function(event) {
 				var button1 = document.getElementById('search');
 				button1.disabled = false;
 				button1.innerHTML = '<span class="mui-icon mui-icon-search"></span>搜索设备';
-				
+
 				var on = un = null;
 				var rs = event.detail;
-				var btsearchlist=rs.btsearchlist;
-				var btlist=Bluetoothapi.getBlueList();
-				
-				
-				var li1 ="",li2 ="";
-				btsearchlist=btsearchlist||{"on":[],"un":[]};
-				localStorage.setItem('$btseachlist', JSON.stringify(btsearchlist));
-									
-				for(var i in btsearchlist.on){
-					var d=btsearchlist.on[i];
-					btlist.push(d);
-					li1 += 
-					'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-warning">未连接</span></a></li>';
-					console.log(d.id+':'+d.name);
+				var btsearchlist = rs.btsearchlist;
+				var onblist = Bluetoothapi.localBlueList();
+
+				var li1 = "",
+					li2 = "";
+				btsearchlist = btsearchlist || {
+					"on": [],
+					"un": []
+				};
+
+				for(var i in btsearchlist.on) {
+					var d = btsearchlist.on[i];
+					onblist.push(d);
+					if(macaddress == d.id) {
+						li1 +=
+							'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-success">已连接</span></a></li>';
+					} else {
+						li1 +=
+							'<li class="mui-table-view-cell" id="' + d.id + '"><a href="" class="mui-navigate-right">' + d.name + '<span class="mui-badge mui-badge-warning">未连接</span></a></li>';
+					}
 				}
-				btlist=Bluetoothapi.arrayUnique(btlist);				
-				Bluetoothapi.setBlueList(btlist);
-				
+				onblist = Bluetoothapi.arrayUnique(onblist);
 				vlist1.innerHTML = li1;
-				
-				if(btsearchlist.un){
-					for(var f in btsearchlist.un){
-						var b=btsearchlist.un[f];
+				if(btsearchlist.un) {
+					btsearchlist.un=Bluetoothapi.arrayUnique(btsearchlist.un);
+					for(var f in btsearchlist.un) {
+						var b = btsearchlist.un[f];
 						li2 += '<li class="mui-table-view-cell" id="' + b.id + '"><a href="" class="mui-navigate-right">' + b.name + '<span class="mui-badge mui-badge-red">未配对</span></a></li>';
-						console.log(b.id+':'+b.name);
+						console.log(b.id + ':' + b.name);
 					}
 					vlist2.innerHTML = li2;
 				}
@@ -294,18 +324,18 @@
 				var button1 = document.getElementById('search');
 				button1.disabled = true;
 				button1.innerHTML = '<span class="mui-icon mui-icon-search"></span>正在搜索请稍候';
-				try{
-					Bluetoothapi.seachBT();					
-				}catch(e){
-					console.log("searchBtError:"+e);
+				try {
+					Bluetoothapi.seachBT();
+				} catch(e) {
+					console.log("searchBtError:" + e);
 					mui.toast("正在初始化蓝牙组件，请稍等片刻！");
-					setTimeout(function(){
+					setTimeout(function() {
 						button1.disabled = false;
-						button1.innerHTML = '<span class="mui-icon mui-icon-search"></span>搜索设备';	
-					},1000);
+						button1.innerHTML = '<span class="mui-icon mui-icon-search"></span>搜索设备';
+					}, 1000);
 				}
-				
-				vlist1.innerHTML = vlist2.innerHTML = ''; //清空容器vlist2.innerHTML =
+				/*清空容器vlist2.innerHTML =*/
+				vlist1.innerHTML = vlist2.innerHTML = '';
 			};
 		</script>
 	</body>

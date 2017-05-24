@@ -1,19 +1,19 @@
 ;mui.web_query = function(func_url, params, onSuccess, onError, retry) {
 	var onSuccess = arguments[2] ? arguments[2] : function() {};
 	var onError = arguments[3] ? arguments[3] : function() {};
-	var retry = arguments[4] ? arguments[4] : 3;
+	var retry = arguments[4] ? arguments[4] : 0;
 	var test=0;
 	func_url = 'http://www.lianhepiaowu.net/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
 	if(test){
 		func_url = 'http://test.lianhepiaowu.com/appapi/v1/index.php?version=1.0.0&fn=' + func_url;
 	}
-			
+	console.log('可重试 '+retry+' 次');
 	mui.ajax(func_url, {
 		data: params,
 		dataType: 'json',
 		type: 'post',
 		timeout: 4000,
-		success: function(data) {			
+		success: function(data) {
 			if(data.status) {
 				onSuccess(data);
 			} else {
@@ -21,9 +21,14 @@
 			}
 		},
 		error: function(xhr, type, errorThrown) {
-//			retry--;
-//			if(retry > 0) return mui.web_query(func_url, params, onSuccess, onError, retry);
-			onError('网络信号不好，请点击查询验票结果');
+			params.retry_num=params.retry_num||0;//存在就加一，不存在就设为0。
+			console.log('重试剩 '+retry+' 次');
+			if(retry > 0){				
+				retry--;
+				params.retry_num++;
+				return mui.web_query(func_url, params, onSuccess, onError, retry);
+			}
+			onError('网络信号不好，请点击查询验票结果，剩'+retry);
 		}
 	})
 };

@@ -28,6 +28,8 @@
 				<span class="mui-tab-label">验票</span>
 			</a>
 			<a id="bluetoothTab" class="mui-tab-item" href="subpage-bluetooth.html">
+				<!--<span class="mui-icon mui-icon-list"><span class="mui-badge mui-badge-warning mui-active">5 次</span></span>-->
+				<!--<span class="mui-tab-label">报表</span>-->				
 				<span class="mui-icon mui-icon-gear"></span>
 				<span class="mui-tab-label">蓝牙</span>
 			</a>
@@ -60,7 +62,6 @@
 					}else{
 						document.getElementById("bluetoothTab").style.display = 'none';
 					}
-					console.log(webviewnum)
 					var self = plus.webview.currentWebview();
 					for (var i = 0; i < webviewnum; i++) {
 						var temp = {};

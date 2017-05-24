@@ -80,7 +80,7 @@
 				<div class="mui-input-row">
 					<span class="mui-icon mui-icon-camera" onclick="clicked('barcode_scan2.html',true,true)"></span>
 					<input id="lhcode" type="number" class="mui-input-clear" value="" placeholder="    输入联合票务12位消费码">
-					<!--<input id="lhcode" type="number" class="mui-input-clear" value="326289333421" placeholder="请输入联合票务12位消费码">-->
+					<!--<input id="lhcode" type="number" class="mui-input-clear" value="800294336898" placeholder="请输入联合票务12位消费码">-->
 				</div>
 			</div>
 			<!--<h4>数量</h4>-->
@@ -171,6 +171,8 @@
         });*/
 			verifyCodeBtn.addEventListener('tap', function() {
 				state = app.getState();
+				settings=settings||app.getSettings();
+				var retry=settings.retry_num||0;
 				var token = state.token;
 				code = lhcode.value;
 				num = number.value;
@@ -178,17 +180,22 @@
 					mui.toast('数量不可小于1');
 					return false;
 				}
+				var timesteap=new Date().getTime();
 				if(requestbefor(this, code)) {
 					mui.web_query('verifyCode', {
 						token: token,
 						code: code,
 						num: num,
+						difference_time:settings.difference_time,
+						timesteap:timesteap,
 						device: settings.device
-					}, onSuccess, onError, 3);
+					}, onSuccess, onError, retry);
 				}
 			});
 			queryCodeBtn.addEventListener('tap', function() {
 				state = app.getState();
+				settings=settings||app.getSettings();
+				var retry=settings.retry_num||0;
 				var token = state.token;
 				code = lhcode.value;
 				if(requestbefor(this, code)) {
@@ -196,7 +203,7 @@
 						token: token,
 						code: code,
 						device: settings.device,
-					}, onSuccess, onError, 3);
+					}, onSuccess, onError, retry);
 				}
 			});
 			rePrintBtn.addEventListener('tap', function() {
@@ -208,7 +215,7 @@
 						token: token,
 						code: code,
 						device: settings.device,
-					}, onSuccess, onError, 3);
+					}, onSuccess, onError);
 				}
 			});
 			var scaned = function(t, r, f) {

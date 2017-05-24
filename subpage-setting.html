@@ -201,7 +201,7 @@
 		<!--蓝牙打印机设置-->
 		<div id="bluetooth" class="mui-page">
 			<div class="mui-navbar-inner mui-bar mui-bar-nav">
-				<button type="button" class="mui-left mui-action-back mui-btn  mui-btn-link mui-btn-nav mui-pull-left">
+				<button type="button" class="mui-left mui-action-back mui-btn mui-btn-link mui-btn-nav mui-pull-left">
 					<span class="mui-icon mui-icon-left-nav"></span>设置
 				</button>
 				<h1 class="mui-center mui-title">打印设置</h1>
@@ -216,6 +216,19 @@
 							</div>
 						</li>
 					</ul>
+				<!--	<h5 class="mui-content-padded" style="margin: 35px 10px 15px;">已配对设备</h5>
+					<ul id="contactlist" class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell" id="BleDevice_active_mac_address">
+							<a href="" class="mui-navigate-right">配对设备<span class="mui-badge mui-badge-success">已连接</span></a>
+						</li>
+						<li class="mui-table-view-cell" id="BleDevice_getAddress_mac_address">
+							<a href="" class="mui-navigate-right">配对设备<span class="mui-badge mui-badge-warning">未连接</span></a>
+						</li>
+					</ul>
+					<h5 class="mui-content-padded" style="margin: 35px 10px 15px;">未配对设备</h5>
+					<ul id="nocontactlist" class="mui-table-view mui-table-view-chevron">
+						<li class="mui-table-view-cell" id="BleDevice_no_active_mac_address"><a href="" class="mui-navigate-right">未配对设备<span class="mui-badge mui-badge-red">未配对</span></a></li>
+					</ul>-->
 					<!--<ul class="mui-table-view mui-table-view-chevron mui-bluesettings">
 						<li class="mui-table-view-cell">
 							重打按钮
@@ -413,7 +426,8 @@
 		$.plusReady(function() {
 			var settings = app.getSettings();
 			var BlueStateButton = doc.getElementById("BlueState");
-			BlueStateButton.classList[settings.bluestate ? 'add' : 'remove']('mui-active');
+			BlueStateButton.classList[settings.bluestate ? 'add' : 'remove']('mui-active');			
+			//处理蓝牙打印开关
 			BlueStateButton.addEventListener('toggle', function(event) {
 				var isActive = event.detail.isActive;
 				if(!isActive) {
@@ -437,6 +451,16 @@
 					$.fire(main, 'BTtoggle');
 				}
 			}, false);
+			//处理蓝牙搜索配对等功能
+			if(settings.bluestate){
+				//开启蓝牙打印后，才会触发此项操作
+			/*	var vlist1 = document.getElementById('contactlist'); //注册容器用来显示未配对设备
+				var vlist2 = document.getElementById('nocontactlist'); //注册容器用来显示未配对设备	
+				Bluetoothapi=$().bluetooth();
+				macaddress=macaddress||Bluetoothapi.getMacAddress();
+				Bluetoothapi.openBluetooth();*/
+				
+			}
 		});
 	}(mui, document));
 	/*蓝牙打印设置结束*/

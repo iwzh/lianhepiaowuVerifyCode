@@ -3,3 +3,5 @@
 .db
 .idea
 unpackage/release/*
+unpackage/res/back*
+

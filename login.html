@@ -206,7 +206,7 @@
 						}
 						token&&(param.token = token);
 						tokenlianhe&&(param.tokenlianhe = tokenlianhe);						
-						mui.web_query('autoLogin', param, onSuccess, onError);					
+						mui.web_query('autoLogin', param, onSuccess, onError,settings.retry_num);					
 					}
 				} else {
 					app.clear();
@@ -234,7 +234,7 @@
 			//忘记密码
 			forgetButton.addEventListener('tap', function(event) {
 				var btnArray = ['是', '否'];
-				mui.confirm('拨打联合票务热线电话，找回密码？', '是否拨打电话找回密码', btnArray, function(e) {
+				mui.confirm('拨打联合票务客服电话，协助找回密码？', '是否拨打电话找回密码', btnArray, function(e) {
 					if(e.index == 1) {
 						mui.toast("取消拨打电话，找回密码");
 					} else {
@@ -279,13 +279,23 @@
 				exeparam = 0;			
 			};
 			function onSuccess(data) {				
-				exeafter();
+				exeafter();				
+				var difference_time;
 				var datainfo = data.data;
-				var tokentime = (datainfo.expire_time * 1000) + new Date().getTime();
+				var jstimesteap=new Date().getTime();
+				var phptimesteap=parseInt(datainfo.timesteap)*1000;
+				var tokentime = (datainfo.expire_time * 1000) + jstimesteap;
 				state = app.getState();
 				state.token = datainfo.access_token;
 				state.tokentime = datainfo.tokentime;
 				app.setState(state);
+				/*设置重试次数和显示报表的次数*/
+				settings=app.getSettings();
+				settings.retry_num=datainfo.retry_num;
+				settings.show_list_num=datainfo.show_list_num;
+				difference_time=jstimesteap-phptimesteap;
+				settings.difference_time=difference_time;
+				app.setSettings(settings);
 
 				setTimeout(function() {
 					toMain();
